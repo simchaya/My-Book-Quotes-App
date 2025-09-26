@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unescaped-entities */
+
 import { Link, Stack } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,11 +14,13 @@ export default function NotFoundScreen() {
           <Text style={styles.icon}>😱</Text>
         </View>
 
-        <Text style={styles.errorTitle}>Oops! Page Not Found</Text>
         <Text style={styles.description}>
-          The page you're looking for doesn't exist. But don’t worry, we'll help
+          The page you're looking for doesn't exist. But don't worry, we'll help
           you get back on track!
         </Text>
+
+
+
 
         <Link href="/" style={styles.button}>
           <Text style={styles.buttonText}>Take Me Home</Text>
@@ -78,3 +82,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+

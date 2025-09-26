@@ -1,128 +1,100 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
   Button,
   ScrollView,
   StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-import { storeObject, getObject } from "@/utils/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Book, useBookQuotes } from "@/hooks/useBookQuotes";
 
-type Book = {
-  id: string;
-  title: string;
-  quotes: string[];
-};
+// Component for displaying one book + its quotes
+const BookItem = ({ book }: { book: Book }) => (
+  <View style={styles.bookItem}>
+    <Text style={styles.bookTitle}>{book.title}</Text>
+    {book.quotes.map((q) => (
+      <Text key={q.id} style={styles.quote}>
+        • {q.text}
+      </Text>
+    ))}
+  </View>
+);
 
 export default function HomeScreen() {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [title, setTitle] = useState("");
-  const [quote, setQuote] = useState("");
+  const { books, addQuoteToBook } = useBookQuotes(); // state/logic from hook
+  const [title, setTitle] = useState(""); // book title input
+  const [quote, setQuote] = useState(""); // quote input
 
-  useEffect(() => {
-    (async () => {
-      const saved = await getObject("books");
-      if (saved) setBooks(saved);
-    })();
-  }, []);
-
-  useEffect(() => {
-    storeObject("books", books);
-  }, [books]);
-
-  const addQuote = () => {
+  // Handle saving new quote
+  const handleSaveQuote = () => {
     if (!title.trim() || !quote.trim()) return;
 
-    setBooks((prevBooks) => {
-      const existingBook = prevBooks.find(
-        (book) => book.title.toLowerCase() === title.toLowerCase()
-      );
+    addQuoteToBook(title, quote);
 
-      if (existingBook) {
-        return prevBooks.map((book) =>
-          book.id === existingBook.id
-            ? { ...book, quotes: [...book.quotes, quote] }
-            : book
-        );
-      } else {
-        return [...prevBooks, { id: Date.now().toString(), title, quotes: [quote] }];
-      }
-    });
-
-    setQuote("");
+    setQuote(""); // always clear quote input
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>📚 My Book Quotes</Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>📚 Book Quotes</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Enter book title"
-          value={title}
-          onChangeText={setTitle}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter a favorite quote"
-          value={quote}
-          onChangeText={setQuote}
-          multiline
-        />
-        <Button title="Save Quote" onPress={addQuote} />
+      {/* Input fields */}
+      <TextInput
+        style={styles.input}
+        placeholder="Book Title"
+        value={title}
+        onChangeText={setTitle}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Favorite Quote"
+        value={quote}
+        onChangeText={setQuote}
+      />
 
-        <ScrollView style={styles.list}>
-          {books.map((book) => (
-            <View key={book.id} style={styles.bookItem}>
-              <Text style={styles.bookTitle}>{book.title}</Text>
-              {book.quotes.map((q, idx) => (
-                <Text key={idx} style={styles.quote}>• {q}</Text>
-              ))}
-            </View>
-          ))}
-        </ScrollView>
-      </View>
+      {/* Save button */}
+      <Button title="Save Quote" onPress={handleSaveQuote} />
+
+      {/* Render list of books */}
+      <ScrollView style={styles.list}>
+        {books.map((book) => (
+          <BookItem key={book.id} book={book} />
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: "#fff",
   },
-  title: {
+  header: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: 16,
     textAlign: "center",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#7da7f6",
-    borderRadius: 8,
+    borderColor: "#ccc",
+    borderRadius: 6,
     padding: 10,
-    marginVertical: 8,
-    fontSize: 16,
-    backgroundColor: "#f9f9f9",
+    marginBottom: 12,
   },
   list: {
     marginTop: 16,
   },
   bookItem: {
+    marginBottom: 20,
     padding: 12,
-    marginVertical: 6,
-    borderWidth: 1,
-    borderColor: "#ddd",
     borderRadius: 8,
+    backgroundColor: "#f9f9f9",
   },
   bookTitle: {
     fontSize: 18,
@@ -130,9 +102,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   quote: {
-    fontSize: 16,
-    fontStyle: "italic",
-    marginLeft: 10,
-    marginVertical: 2,
+    fontSize: 14,
+    marginLeft: 8,
+    color: "#333",
   },
 });

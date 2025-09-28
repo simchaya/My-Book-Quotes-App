@@ -22,7 +22,7 @@ const BookItem = ({ book }: { book: Book }) => {
         {book.title}
       </Text>
       {book.quotes.map((q) => (
-        // ✅ composite key ensures uniqueness
+        // composite key ensures uniqueness
         <Text key={`${book.id}-${q.id}`} style={[typography.caption, { color: colors.secondaryText }]}>
           • {q.text}
         </Text>

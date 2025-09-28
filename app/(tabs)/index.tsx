@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import {
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
-  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Book, useBookQuotes } from "@/hooks/useBookQuotes";
-import { useThemeColors, typography } from "@/utils/theme";
+import { typography, useThemeColors } from "@/utils/theme";
 
 // Component for displaying one book + its quotes
 const BookItem = ({ book }: { book: Book }) => {
@@ -21,12 +21,15 @@ const BookItem = ({ book }: { book: Book }) => {
       <Text style={[typography.title2, { color: colors.text }]}>
         {book.title}
       </Text>
-      {book.quotes.map((q) => (
-        // composite key ensures uniqueness
-        <Text key={`${book.id}-${q.id}`} style={[typography.caption, { color: colors.secondaryText }]}>
-          • {q.text}
+      {book.quotes.map((q, index) => (
+        <Text
+          key={`${book.id}-${q.id ?? index}`}
+          style={[typography.body, { color: colors.secondaryText, fontStyle: "italic" }]}
+        >
+          “{q.text}”
         </Text>
       ))}
+
     </View>
   );
 };

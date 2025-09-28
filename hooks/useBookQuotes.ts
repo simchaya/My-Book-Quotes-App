@@ -1,5 +1,7 @@
 import { getObject, storeObject } from "@/utils/async-storage";
+import { uniqueId } from "@/utils/id"; // helper to generate unique IDs safely
 import { useEffect, useState } from "react";
+
 
 // Each quote has an id + text
 export type Quote = {
@@ -13,10 +15,6 @@ export type Book = {
   title: string;
   quotes: Quote[];
 };
-
-// helper to generate unique IDs safely
-const uniqueId = () =>
-  Date.now().toString() + Math.random().toString(36).slice(2);
 
 export const useBookQuotes = () => {
   const [books, setBooks] = useState<Book[]>([]);

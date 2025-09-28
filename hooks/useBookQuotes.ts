@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { storeObject, getObject } from "@/utils/async-storage";
+import { getObject, storeObject } from "@/utils/async-storage";
+import { useEffect, useState } from "react";
 
 // Each quote has an id + text
 export type Quote = {
@@ -14,7 +14,10 @@ export type Book = {
   quotes: Quote[];
 };
 
-// Custom hook to manage books + quotes (load, save, add)
+// helper to generate unique IDs safely
+const uniqueId = () =>
+  Date.now().toString() + Math.random().toString(36).slice(2);
+
 export const useBookQuotes = () => {
   const [books, setBooks] = useState<Book[]>([]);
 
@@ -22,7 +25,21 @@ export const useBookQuotes = () => {
   useEffect(() => {
     const loadBooks = async () => {
       const saved = await getObject("books");
-      if (saved) setBooks(saved as Book[]);
+      if (saved) {
+        // ensure every book + quote has an id
+        const fixed = (saved as Book[]).map((b) => ({
+          ...b,
+          id: b.id ?? uniqueId(),
+          quotes: b.quotes.map((q) => ({
+            ...q,
+            id: q.id ?? uniqueId(),
+          })),
+        }));
+        setBooks(fixed);
+
+        // save back fixed data so it persists
+        storeObject("books", fixed);
+      }
     };
     loadBooks();
   }, []);
@@ -34,7 +51,7 @@ export const useBookQuotes = () => {
 
   // Add a quote to an existing book OR create a new book
   const addQuoteToBook = (title: string, quote: string) => {
-    const newQuote: Quote = { id: Date.now().toString(), text: quote };
+    const newQuote: Quote = { id: uniqueId(), text: quote };
 
     setBooks((prevBooks) => {
       const existingBook = prevBooks.find(
@@ -42,17 +59,15 @@ export const useBookQuotes = () => {
       );
 
       if (existingBook) {
-        // Add quote to existing book
         return prevBooks.map((book) =>
           book.id === existingBook.id
             ? { ...book, quotes: [...book.quotes, newQuote] }
             : book
         );
       } else {
-        // Or create a new book
         return [
           ...prevBooks,
-          { id: Date.now().toString(), title, quotes: [newQuote] },
+          { id: uniqueId(), title, quotes: [newQuote] },
         ];
       }
     });

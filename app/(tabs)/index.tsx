@@ -10,18 +10,20 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Book, useBookQuotes } from "@/hooks/useBookQuotes";
-import { useThemeColors, typography } from "../../utils/theme";
+import { useThemeColors, typography } from "@/utils/theme";
 
-// One book card
+// Component for displaying one book + its quotes
 const BookItem = ({ book }: { book: Book }) => {
   const colors = useThemeColors();
+
   return (
     <View style={[styles.bookItem, { backgroundColor: colors.card }]}>
-      <Text style={[typography.title2, { color: colors.text }]} accessibilityRole="header">
+      <Text style={[typography.title2, { color: colors.text }]}>
         {book.title}
       </Text>
       {book.quotes.map((q) => (
-        <Text key={q.id} style={[typography.caption, { color: colors.secondaryText }]}>
+        // ✅ composite key ensures uniqueness
+        <Text key={`${book.id}-${q.id}`} style={[typography.caption, { color: colors.secondaryText }]}>
           • {q.text}
         </Text>
       ))}
@@ -33,13 +35,13 @@ export default function HomeScreen() {
   const { books, addQuoteToBook } = useBookQuotes();
   const [title, setTitle] = useState("");
   const [quote, setQuote] = useState("");
+  const colors = useThemeColors();
 
-  const colors = useThemeColors(); // shared theme (light/dark)
-
+  // Handle saving new quote
   const handleSaveQuote = () => {
     if (!title.trim() || !quote.trim()) return;
     addQuoteToBook(title, quote);
-    setQuote(""); // reset field
+    setQuote(""); // clear quote field
   };
 
   return (
@@ -48,7 +50,7 @@ export default function HomeScreen() {
         Book Quotes
       </Text>
 
-      {/* input labels above fields */}
+      {/* Book Title input */}
       <Text style={[typography.body, { color: colors.secondaryText, marginBottom: 4 }]}>
         Book Title
       </Text>
@@ -63,6 +65,7 @@ export default function HomeScreen() {
         onChangeText={setTitle}
       />
 
+      {/* Quote input */}
       <Text style={[typography.body, { color: colors.secondaryText, marginBottom: 4 }]}>
         Favorite Quote
       </Text>
@@ -77,7 +80,7 @@ export default function HomeScreen() {
         onChangeText={setQuote}
       />
 
-      {/* save button */}
+      {/* Save button */}
       <Pressable
         style={[styles.saveButton, { backgroundColor: colors.buttonBg }]}
         onPress={handleSaveQuote}
@@ -88,7 +91,7 @@ export default function HomeScreen() {
         </Text>
       </Pressable>
 
-      {/* list of saved books */}
+      {/* Render list of books */}
       <ScrollView style={styles.list}>
         {books.map((book) => (
           <BookItem key={book.id} book={book} />

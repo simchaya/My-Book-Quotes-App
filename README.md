@@ -1,9 +1,9 @@
-# Welcome to my Book Quotes app
+# 📚 Welcome to my Book Quotes app
 
 A simple React Native + Expo app for iOS that lets you log your favorite books and quotes.
 Built with a focus on simplicity, modularity, and a user-friendly interface.
 
-# Current Features (MVP)
+## Current Features (MVP)
 
 - Add books with multiple quotes
 - Prevent duplicate book entries (quotes are grouped by book)
@@ -12,19 +12,58 @@ Built with a focus on simplicity, modularity, and a user-friendly interface.
 - iOS dark/light mode support
 - Organized project structure with Expo Router
 
-# Planned Enhancements:
+## Local Persistence
 
-This project is just getting started! Here are the future features I’d like to add:
-- Autocorrect for input fields
-- Take a photo of the book cover
-- Photo-to-text for quotes (OCR: take a photo of a quote and convert it to text)
-- Search between books in a creative way (e.g. card layout with book titles & photos)
-- Highlight punch lines in color for emphasis
-- Login system (so users can back up and sync their data)
-- Persistent storage in the cloud (beyond local temp storage)
-- Autocomplete book titles if they already exist
-- Fun and engaging UI/UX, not just utility
-- Smart redirect to Not Found screen if data is missing or invalid
+Right now, data is stored **locally on the device** with [AsyncStorage](https://github.com/react-native-async-storage/async-storage).
+
+ - **Helpers**:  
+   - `utils/async-storage.ts` → `storeObject` / `getObject` helpers  
+   - `utils/id.ts` → `uniqueId()` helper  
+ - **Hook**:  
+   - `hooks/useBookQuotes.ts` → Manages books/quotes, loads/saves data
+
+ This means your books and quotes stay available between app launches.
+
+ ---
+
+ ## Planned Enhancements
+
+ - **CRUD support**  
+   - Remove quotes from a book  
+   - Delete entire books  
+   - Edit book titles / quote text  
+
+ - **Database integration**  
+   - Persistent storage in the cloud (MongoDB backend)  
+   - Login system for backup + sync across devices  
+
+ - **UI/UX improvements**  
+   - Autocorrect + autocomplete book titles  
+   - Take photo of book covers  
+   - OCR (photo → text quotes)  
+   - Search between books (card layout with covers)  
+   - Highlight punch lines in color  
+   - Fun, engaging UI (not just utility)  
+   - Smart redirect to *Not Found* screen if data is missing/invalid
+
+ ---
+
+ ## 📂 Project Structure
+
+ ```bash
+ app/
+  ├─ (tabs)/
+  │   ├─ index.tsx        # Home screen (books + quotes)
+  │   ├─ explore.tsx      # Explore screen (placeholder for future features)
+  │   └─ +not-found.tsx   # Not Found screen (fallback route)
+  ├─ _layout.tsx          # Root layout with navigation
+ hooks/
+  └─ useBookQuotes.ts     # Custom hook for managing books + quotes
+ utils/
+  ├─ async-storage.ts     # storeObject / getObject helpers
+  ├─ id.ts                # uniqueId() generator
+  └─ theme.ts             # colors + typography (light/dark mode)
+ ```
 
 ## Get started:
 

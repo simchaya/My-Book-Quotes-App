@@ -50,7 +50,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <Text style={[typography.largeTitle, { color: colors.text, textAlign: "center", marginBottom: 20 }]}>
-        Book Quotes
+        My Book Quotes
       </Text>
 
       {/* Book Title input */}

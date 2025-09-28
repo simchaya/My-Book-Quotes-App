@@ -1,64 +1,94 @@
 import React, { useState } from "react";
 import {
-  Button,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
+  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Book, useBookQuotes } from "@/hooks/useBookQuotes";
+import { useThemeColors, typography } from "../../utils/theme";
 
-// Component for displaying one book + its quotes
-const BookItem = ({ book }: { book: Book }) => (
-  <View style={styles.bookItem}>
-    <Text style={styles.bookTitle}>{book.title}</Text>
-    {book.quotes.map((q) => (
-      <Text key={q.id} style={styles.quote}>
-        • {q.text}
+// One book card
+const BookItem = ({ book }: { book: Book }) => {
+  const colors = useThemeColors();
+  return (
+    <View style={[styles.bookItem, { backgroundColor: colors.card }]}>
+      <Text style={[typography.title2, { color: colors.text }]} accessibilityRole="header">
+        {book.title}
       </Text>
-    ))}
-  </View>
-);
+      {book.quotes.map((q) => (
+        <Text key={q.id} style={[typography.caption, { color: colors.secondaryText }]}>
+          • {q.text}
+        </Text>
+      ))}
+    </View>
+  );
+};
 
 export default function HomeScreen() {
-  const { books, addQuoteToBook } = useBookQuotes(); // state/logic from hook
-  const [title, setTitle] = useState(""); // book title input
-  const [quote, setQuote] = useState(""); // quote input
+  const { books, addQuoteToBook } = useBookQuotes();
+  const [title, setTitle] = useState("");
+  const [quote, setQuote] = useState("");
 
-  // Handle saving new quote
+  const colors = useThemeColors(); // shared theme (light/dark)
+
   const handleSaveQuote = () => {
     if (!title.trim() || !quote.trim()) return;
-
     addQuoteToBook(title, quote);
-
-    setQuote(""); // always clear quote input
+    setQuote(""); // reset field
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>📚 Book Quotes</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[typography.largeTitle, { color: colors.text, textAlign: "center", marginBottom: 20 }]}>
+        Book Quotes
+      </Text>
 
-      {/* Input fields */}
+      {/* input labels above fields */}
+      <Text style={[typography.body, { color: colors.secondaryText, marginBottom: 4 }]}>
+        Book Title
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          { borderColor: colors.border, color: colors.text, backgroundColor: colors.background },
+        ]}
         placeholder="Book Title"
+        placeholderTextColor={colors.placeholder}
         value={title}
         onChangeText={setTitle}
       />
+
+      <Text style={[typography.body, { color: colors.secondaryText, marginBottom: 4 }]}>
+        Favorite Quote
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          { borderColor: colors.border, color: colors.text, backgroundColor: colors.background },
+        ]}
         placeholder="Favorite Quote"
+        placeholderTextColor={colors.placeholder}
         value={quote}
         onChangeText={setQuote}
       />
 
-      {/* Save button */}
-      <Button title="Save Quote" onPress={handleSaveQuote} />
+      {/* save button */}
+      <Pressable
+        style={[styles.saveButton, { backgroundColor: colors.buttonBg }]}
+        onPress={handleSaveQuote}
+        accessibilityRole="button"
+      >
+        <Text style={[typography.body, styles.saveButtonText, { color: colors.buttonText }]}>
+          Save Quote
+        </Text>
+      </Pressable>
 
-      {/* Render list of books */}
+      {/* list of saved books */}
       <ScrollView style={styles.list}>
         {books.map((book) => (
           <BookItem key={book.id} book={book} />
@@ -69,41 +99,20 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
+  container: { flex: 1, padding: 16 },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 12,
-  },
-  list: {
-    marginTop: 16,
-  },
-  bookItem: {
-    marginBottom: 20,
+    borderRadius: 10,
     padding: 12,
-    borderRadius: 8,
-    backgroundColor: "#f9f9f9",
+    marginBottom: 16,
   },
-  bookTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 6,
+  saveButton: {
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: "center",
+    marginBottom: 20,
   },
-  quote: {
-    fontSize: 14,
-    marginLeft: 8,
-    color: "#333",
-  },
+  saveButtonText: { fontWeight: "600" },
+  list: { marginTop: 10 },
+  bookItem: { marginBottom: 20, padding: 14, borderRadius: 12 },
 });

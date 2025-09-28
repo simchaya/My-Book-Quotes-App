@@ -1,29 +1,33 @@
 /* eslint-disable react/no-unescaped-entities */
-
 import { Link, Stack } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useThemeColors, typography } from "../utils/theme";
 
 export default function NotFoundScreen() {
+  const colors = useThemeColors();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <Stack.Screen options={{ title: "Oops!" }} />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      {/* hide header so layout matches Explore */}
+      <Stack.Screen options={{ headerShown: false }} />
 
       <View style={styles.container}>
-        <View style={styles.iconContainer}>
-          <Text style={styles.icon}>😱</Text>
-        </View>
-
-        <Text style={styles.description}>
-          The page you're looking for doesn't exist. But don't worry, we'll help
-          you get back on track!
+        <Text style={[typography.largeTitle, { color: colors.text, marginBottom: 15 }]}>
+          Page Not Found
         </Text>
 
+        <Text style={[typography.body, { color: colors.secondaryText, textAlign: "center", marginBottom: 30 }]}>
+          The page you're looking for doesn't exist. You can return to the home screen below.
+        </Text>
 
-
-
-        <Link href="/" style={styles.button}>
-          <Text style={styles.buttonText}>Take Me Home</Text>
+        {/* safe web-compatible button */}
+        <Link href="/" style={{ textDecorationLine: "none" }}>
+          <View style={[styles.button, { backgroundColor: colors.buttonBg }]}>
+            <Text style={[typography.body, styles.buttonText, { color: colors.buttonText }]}>
+              Go Home
+            </Text>
+          </View>
         </Link>
       </View>
     </SafeAreaView>
@@ -33,53 +37,24 @@ export default function NotFoundScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F99410",
+    alignItems: "center",   // same as Explore
+    justifyContent: "center", // same as Explore
+    padding: 16,
   },
   container: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    margin: 10,
-  },
-  iconContainer: {
-    marginBottom: 20,
-  },
-  icon: {
-    fontSize: 60,
-    textAlign: "center",
-  },
-  errorTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 15,
-    color: "black",
-  },
-  description: {
-    fontSize: 16,
-    textAlign: "center",
-    marginHorizontal: 20,
-    marginBottom: 20,
-    lineHeight: 22,
-    color: "black",
+    width: "100%",
   },
   button: {
-    backgroundColor: "#DFF4F6",
-    paddingHorizontal: 30,
-    paddingVertical: 10,
-    borderRadius: 90,
-    marginTop: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.9,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    minWidth: 160,
   },
   buttonText: {
-    color: "black",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     textAlign: "center",
   },
 });
-

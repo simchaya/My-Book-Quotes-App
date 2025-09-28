@@ -1,21 +1,32 @@
 import { useRouter } from "expo-router";
-import { Button, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { typography, useThemeColors } from "../../utils/theme";
 
 export default function ExploreScreen() {
   const router = useRouter();
+  const colors = useThemeColors(); // shared theme
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <Text style={styles.title}>🚀 Explore</Text>
-      <Text style={styles.subtitle}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <Text style={[typography.largeTitle, { color: colors.text, marginBottom: 8 }]}>
+        Explore
+      </Text>
+
+      <Text style={[typography.body, { color: colors.secondaryText, textAlign: "center", marginBottom: 20 }]}>
         This tab is ready for future enhancements.
       </Text>
 
-      <Button
-        title="Trigger Not Found"
+      {/* navigation button */}
+      <Pressable
+        style={[styles.button, { backgroundColor: colors.buttonBg }]}
         onPress={() => router.push("/+not-found")}
-      />
+        accessibilityRole="button"
+      >
+        <Text style={[typography.body, styles.buttonText, { color: colors.buttonText }]}>
+          Trigger Not Found
+        </Text>
+      </Pressable>
     </SafeAreaView>
   );
 }
@@ -26,17 +37,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 16,
-    backgroundColor: "#fff",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
+  button: {
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    alignItems: "center",
   },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-    color: "#666",
-    marginBottom: 20,
-  },
+  buttonText: { fontWeight: "600" },
 });

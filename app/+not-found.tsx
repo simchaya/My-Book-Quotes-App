@@ -38,10 +38,12 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
     padding: 20,
+    marginTop: -110,
   },
+  
   button: {
     borderRadius: 10,
     paddingVertical: 14,

@@ -1,19 +1,18 @@
 /* eslint-disable react/no-unescaped-entities */
 import { Link, Stack } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useThemeColors, typography } from "../utils/theme";
+import { typography, useThemeColors } from "../utils/theme";
 
 export default function NotFoundScreen() {
-  const colors = useThemeColors();
+  const colors = useThemeColors(); // shared theme
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      {/* hide header so layout matches Explore */}
-      <Stack.Screen options={{ headerShown: false }} />
+      <Stack.Screen options={{ title: "Not Found" }} />
 
       <View style={styles.container}>
-        <Text style={[typography.largeTitle, { color: colors.text, marginBottom: 15 }]}>
+        <Text style={[typography.largeTitle, { color: colors.text, textAlign: "center", marginBottom: 15 }]}>
           Page Not Found
         </Text>
 
@@ -21,30 +20,27 @@ export default function NotFoundScreen() {
           The page you're looking for doesn't exist. You can return to the home screen below.
         </Text>
 
-        {/* safe web-compatible button */}
-        <Link href="/" style={{ textDecorationLine: "none" }}>
-          <View style={[styles.button, { backgroundColor: colors.buttonBg }]}>
-            <Text style={[typography.body, styles.buttonText, { color: colors.buttonText }]}>
-              Go Home
-            </Text>
-          </View>
-        </Link>
+        {/* home navigation button (web safe) */}
+<Link href="/" style={{ textDecorationLine: "none" }}>
+  <View style={[styles.button, { backgroundColor: colors.buttonBg }]}>
+    <Text style={[typography.body, styles.buttonText, { color: colors.buttonText }]}>
+      Go Home
+    </Text>
+  </View>
+</Link>
+
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    alignItems: "center",   // same as Explore
-    justifyContent: "center", // same as Explore
-    padding: 16,
-  },
+  safeArea: { flex: 1 },
   container: {
-    alignItems: "center",
+    flex: 1,
     justifyContent: "center",
-    width: "100%",
+    alignItems: "center",
+    padding: 20,
   },
   button: {
     borderRadius: 10,
@@ -53,8 +49,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minWidth: 160,
   },
-  buttonText: {
-    fontWeight: "600",
-    textAlign: "center",
-  },
+  buttonText: { fontWeight: "600", textAlign: "center" },
 });

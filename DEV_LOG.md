@@ -11,6 +11,7 @@ This document shares insights into the development process, design decisions, an
 - Early issue: Quotes disappeared after app reload since they only lived in React state.
 - Solution: Implemented local persistence with AsyncStorage through a custom useBookQuotes hook.
 - Added safeguards to prevent accidental overwrites with empty state during Expo hot reload.
+- Verified persistence not just with hot reloads, but by reinstalling the app in Expo Go to confirm storage survived across sessions.
 
 ## Handling Unique IDs
 - Initial implementation used Date.now().toString() for IDs.
@@ -22,6 +23,20 @@ This document shares insights into the development process, design decisions, an
 - Created a custom Not Found screen for invalid routes.
 - Initially tried to fix spacing with negative margins — which broke layout across devices.
 - Corrected to use pure Flexbox centering (justifyContent: "center", alignItems: "center") to stay adaptive.
+- Intentionally tested invalid routes (router.push("/+not-found")) to confirm fallback navigation works as expected.
+
+## Developer Experience & Tooling
+- ESLint + Prettier: Configured linting/formatting to enforce consistent code style and catch issues (e.g., unescaped entities).
+- TypeScript Strictness: Leveraged type safety to prevent mismatches (e.g., between string[] vs. {id, text}[]).
+- Console Debugging: Used temporary logs in hooks and components to trace state updates between AsyncStorage and UI.
+
+## AsyncStorage Lessons
+- Migration Challenge: Transitioning from string-based quotes to object-based quotes required careful handling. Highlighted how persistence formats should be versioned for long-term stability.
+- Custom Helpers: Refactored storage utilities to include storeObject and getObject, centralizing JSON handling instead of scattering JSON.stringify/JSON.parse throughout the app.
+
+## UI/UX Iteration
+- SafeAreaView Migration: Replaced deprecated SafeAreaView with react-native-safe-area-context to properly respect iOS safe areas (battery notch, status bar).
+- Minimalism vs. Personality: Balanced clean iOS aesthetics with subtle personality — emoji headers, soft quote styling — to keep the app engaging.
 
 ## Future-Proofing
 - While persistence is local today, the architecture prepares for CRUD operations and a remote MongoDB backend:
@@ -29,6 +44,12 @@ This document shares insights into the development process, design decisions, an
     - hooks/ for state + business logic (useBookQuotes).
     - app/ for Expo Router screens.
 - This separation ensures replacing AsyncStorage with an API layer will be straightforward.
+- Anticipated features:
+  - Quote deletion/edit (CRUD-ready but missing UI).
+  - Search, filters, and card-style book browsing.
+  - Punchline highlighting with styled text spans.
+  - Internationalization (i18n) for multilingual quotes.
 
 ## Reflections
 This project has been a balance between learning fundamentals and future-proofing for real-world expansion.
+It demonstrates how small design choices (like unique IDs, migration handling, and theme centralization) set the foundation for scalability without overcomplicating the MVP.

@@ -38,7 +38,15 @@ This document shares insights into the development process, design decisions, an
 - SafeAreaView Migration: Replaced deprecated SafeAreaView with react-native-safe-area-context to properly respect iOS safe areas (battery notch, status bar).
 - Minimalism vs. Personality: Balanced clean iOS aesthetics with subtle personality — emoji headers, soft quote styling — to keep the app engaging.
 
-## Future-Proofing
+### Recent Updates
+- Refactored spacing system into `theme.ts` (`spacing` tokens for 8pt rhythm)  
+- Updated HomeScreen and AboutScreen styles to remove “magic numbers”  
+- Reworked About page:
+  - Added step-by-step instructions (scroll → find → save)  
+  - Inspirational text now sits below instructions in italic  
+  - Layout spacing adjusted to match iOS HIG composition 
+
+## Future-Plan
 - While persistence is local today, the architecture prepares for CRUD operations and a remote MongoDB backend:
     - utils/ for shared helpers (storage, IDs, theming).
     - hooks/ for state + business logic (useBookQuotes).

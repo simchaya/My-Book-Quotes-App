@@ -45,3 +45,13 @@ export const typography: Record<string, TextStyle> = {
     lineHeight: 18,
   },
 };
+
+// Spacing scale (HIG 8pt rhythm)
+export const spacing = {
+  xs: 4,   // tiny adjustments
+  sm: 8,   // small gaps
+  md: 16,  // default padding/margin
+  lg: 24,  // section spacing
+  xl: 32,  // large separation
+  xxl: 48, // very large gaps
+};

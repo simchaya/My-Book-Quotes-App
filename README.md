@@ -12,6 +12,13 @@ Built with a focus on simplicity, modularity, and a user-friendly interface.
 - iOS dark/light mode support
 - Organized project structure with Expo Router
 
+### UI/UX
+
+- Adopted Apple Human Interface Guidelines (HIG) for a cleaner, native iOS feel  
+- Introduced a design system (`theme.ts`) with typography, colors, and spacing  
+- Updated **About page** with step-by-step instructions and inspirational vision  
+- Consistent spacing system applied across screens (8pt rhythm)  
+
 ## Local Persistence
 
 Right now, data is stored **locally on the device** with [AsyncStorage](https://github.com/react-native-async-storage/async-storage).

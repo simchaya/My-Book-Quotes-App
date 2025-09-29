@@ -3,65 +3,41 @@
 A simple React Native + Expo app for iOS that lets you log your favorite books and quotes.
 Built with a focus on simplicity, modularity, and a user-friendly interface.
 
-## Current Features (MVP)
+## Features
 
-- Add books with multiple quotes
-- Prevent duplicate book entries (quotes are grouped by book)
-- Automatic saving with AsyncStorage (local device storage)
-- Custom Not Found screen with Safe Area support
-- iOS dark/light mode support
-- Organized project structure with Expo Router
+- **Core**
+  - Add books with multiple quotes
+  - Prevent duplicate book entries (quotes grouped by book)
+  - Local persistence with AsyncStorage
+  - Custom “Not Found” screen
 
-### UI/UX
+- **UI/UX**
+  - Apple HIG–inspired design
+  - Dark/light mode support
+  - Design system (`theme.ts` for typography, colors, spacing)
+  - Consistent 8pt spacing rhythm
 
-- Adopted Apple Human Interface Guidelines (HIG) for a cleaner, native iOS feel  
-- Introduced a design system (`theme.ts`) with typography, colors, and spacing  
-- Updated **About page** with step-by-step instructions and inspirational vision  
-- Consistent spacing system applied across screens (8pt rhythm)  
-
-## Local Persistence
-
-Right now, data is stored **locally on the device** with [AsyncStorage](https://github.com/react-native-async-storage/async-storage).
-
- - **Helpers**:  
-   - `utils/async-storage.ts` → `storeObject` / `getObject` helpers  
-   - `utils/id.ts` → `uniqueId()` helper  
- - **Hook**:  
-   - `hooks/useBookQuotes.ts` → Manages books/quotes, loads/saves data
-
- This means your books and quotes stay available between app launches.
-
- ---
+## New in this version
+- Take book cover photos with device camera  
+- Covers now display with saved books  
+- Full-screen scroll (inputs + quotes)  
+- KeyboardAvoidingView on iOS (inputs move above keyboard)
 
  ## Planned Enhancements
+- CRUD: edit/remove books & quotes  
+- Cloud sync (MongoDB + login)  
+- OCR & search across books  
+- Highlighting + improved layouts 
+- Discover quotes 
 
- - **CRUD support**  
-   - Remove quotes from a book  
-   - Delete entire books  
-   - Edit book titles / quote text  
 
- - **Database integration**  
-   - Persistent storage in the cloud (MongoDB backend)  
-   - Login system for backup + sync across devices  
-
- - **UI/UX improvements**  
-   - Autocorrect + autocomplete book titles  
-   - Take photo of book covers  
-   - OCR (photo → text quotes)  
-   - Search between books (card layout with covers)  
-   - Highlight punch lines in color  
-   - Fun, engaging UI (not just utility)  
-   - Smart redirect to *Not Found* screen if data is missing/invalid
-
- ---
-
- ## 📂 Project Structure
+ ## Project Structure
 
  ```bash
  app/
   ├─ (tabs)/
   │   ├─ index.tsx        # Home screen (books + quotes)
-  │   ├─ explore.tsx      # Explore screen (placeholder for future features)
+  │   ├─ about.tsx        # About the app
   │   └─ +not-found.tsx   # Not Found screen (fallback route)
   ├─ _layout.tsx          # Root layout with navigation
  hooks/

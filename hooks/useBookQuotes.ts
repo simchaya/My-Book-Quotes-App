@@ -14,6 +14,7 @@ export type Book = {
     id: string;
     title: string;
     quotes: Quote[];
+    coverUri?: string;
 };
 
 export const useBookQuotes = () => {
@@ -52,28 +53,35 @@ export const useBookQuotes = () => {
     }, [books]);
 
     // Add a quote to an existing book OR create a new book
-    const addQuoteToBook = (title: string, quote: string) => {
-        const newQuote: Quote = { id: uniqueId(), text: quote };
+    // Add a quote to an existing book OR create a new book
+const addQuoteToBook = (title: string, quote: string, coverUri?: string) => {
+    const newQuote: Quote = { id: uniqueId(), text: quote };
 
-        setBooks((prevBooks) => {
-            const existingBook = prevBooks.find(
-                (book) => book.title.toLowerCase() === title.toLowerCase()
+    setBooks((prevBooks) => {
+        const existingBook = prevBooks.find(
+            (book) => book.title.toLowerCase() === title.toLowerCase()
+        );
+
+        if (existingBook) {
+            return prevBooks.map((book) =>
+              book.id === existingBook.id
+                ? {
+                    ...book,
+                    quotes: [...book.quotes, newQuote],
+                    // Always use new coverUri if provided
+                    coverUri: coverUri ?? book.coverUri,
+                  }
+                : book
             );
-
-            if (existingBook) {
-                return prevBooks.map((book) =>
-                    book.id === existingBook.id
-                        ? { ...book, quotes: [...book.quotes, newQuote] }
-                        : book
-                );
-            } else {
-                return [
-                    ...prevBooks,
-                    { id: uniqueId(), title, quotes: [newQuote] },
-                ];
-            }
-        });
-    };
+          }
+           else {
+            return [
+                ...prevBooks,
+                { id: uniqueId(), title, quotes: [newQuote], coverUri },
+            ];
+        }
+    });
+};
 
     return { books, addQuoteToBook };
 };

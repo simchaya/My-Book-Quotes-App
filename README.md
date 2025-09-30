@@ -12,7 +12,6 @@ Built with a focus on simplicity, modularity, and a user-friendly interface.
   - Custom “Not Found” screen
   - Swipe-to-delete books (iOS-style gesture)
 
-
 - **UI/UX**
   - Apple HIG–inspired design
   - Dark/light mode support
@@ -25,6 +24,17 @@ Built with a focus on simplicity, modularity, and a user-friendly interface.
 - Full-screen scroll (inputs + quotes)  
 - KeyboardAvoidingView on iOS (inputs move above keyboard)
 - Swipe-to-delete for books (HIG-aligned interaction)
+
+## Screenshots
+
+| Light Mode | Dark Mode |
+|------------|-----------|
+| ![Home Light](assets/screenshots/home-light.png) | ![Home Dark](assets/screenshots/home-dark.png) |
+
+| Quotes list + Cover | About | Swipe to Delete |
+|-------------------|-----------------|
+| ![Quotes list](assets/screenshots/quotes-list.png) | ![About](assets/screenshots/about.png) | ![Delete Book](assets/screenshots/delete-book.png) |
+
 
  ## Planned Enhancements
 - CRUD: edit/remove books & quotes  

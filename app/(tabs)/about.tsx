@@ -10,8 +10,7 @@ export default function AboutScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      {/* inspirational app vision (intro quote) */}
-      {/* instructions */}
+      {/* inspirational app vision + instructions */}
 <View style={{ marginBottom: spacing.lg }}>
   <Text style={[typography.body, { color: colors.text, textAlign: "justify", marginBottom: spacing.xs }]}>
     1. Scroll through a book
@@ -23,8 +22,6 @@ export default function AboutScreen() {
     3. Save it here
   </Text>
 </View>
-
-{/* inspirational app vision */}
 <Text
   style={[
     typography.body,
@@ -39,7 +36,6 @@ export default function AboutScreen() {
   You'll be surprised — this habit will inspire you to read more books...
  
 </Text>
-
 
       {/* profile photo */}
       <Image

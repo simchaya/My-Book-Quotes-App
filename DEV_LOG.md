@@ -6,17 +6,11 @@ This document captures the main design decisions and lessons from building the B
 - Centralized typography, spacing, and colors in theme.ts for consistency.
 - Adopted dark/light mode and safe area support.
 
-## Persistence & IDs
+## Persistence & IDs    
 - Added AsyncStorage persistence via useBookQuotes hook.
 - Fixed early bug where quotes vanished after reload.
 - Introduced uniqueId() helper to avoid duplicate keys.
 - Added migration logic to retroactively assign IDs to old data.
-
-## Handling Unique IDs
-- Initial implementation used Date.now().toString() for IDs.
-- This caused duplicate key warnings when multiple entries were created within the same millisecond.
-- Fix: Introduced a uniqueId() helper (utils/id.ts) that combines timestamp + random suffix.
-- Added a migration step to retroactively assign IDs to quotes or books missing them in saved data.
 
 ## Error Handling & Navigation
 - Custom Not Found screen for invalid routes.
@@ -33,6 +27,7 @@ This document captures the main design decisions and lessons from building the B
 - Full-screen scrolling with ScrollView.
 - KeyboardAvoidingView for iOS input handling.
 - About page updated with clear step-by-step instructions.
+- Swipe-to-delete for books (HIG-aligned interaction)
 
 ## Future-Plan
 - CRUD: edit/remove books & quotes.

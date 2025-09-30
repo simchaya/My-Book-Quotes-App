@@ -10,6 +10,8 @@ Built with a focus on simplicity, modularity, and a user-friendly interface.
   - Prevent duplicate book entries (quotes grouped by book)
   - Local persistence with AsyncStorage
   - Custom “Not Found” screen
+  - Swipe-to-delete books (iOS-style gesture)
+
 
 - **UI/UX**
   - Apple HIG–inspired design
@@ -22,6 +24,7 @@ Built with a focus on simplicity, modularity, and a user-friendly interface.
 - Covers now display with saved books  
 - Full-screen scroll (inputs + quotes)  
 - KeyboardAvoidingView on iOS (inputs move above keyboard)
+- Swipe-to-delete for books (HIG-aligned interaction)
 
  ## Planned Enhancements
 - CRUD: edit/remove books & quotes  

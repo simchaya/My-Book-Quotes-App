@@ -2,20 +2,23 @@ import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Book, useBookQuotes } from "@/hooks/useBookQuotes";
 import { spacing, typography, useThemeColors } from "@/utils/theme";
+
+import { SwipeListView } from "react-native-swipe-list-view";
+
 
 // Component for displaying one book + its quotes + optional cover photo
 const BookItem = ({ book }: { book: Book }) => {
@@ -59,7 +62,7 @@ const BookItem = ({ book }: { book: Book }) => {
 
 
 export default function HomeScreen() {
-  const { books, addQuoteToBook } = useBookQuotes();
+  const { books, addQuoteToBook, removeBook } = useBookQuotes();
   const [title, setTitle] = useState("");
   const [quote, setQuote] = useState("");
   const [coverUri, setCoverUri] = useState<string | null>(null);
@@ -199,10 +202,29 @@ export default function HomeScreen() {
           </Pressable>
 
           {/* Render list of books */}
+          <SwipeListView
+            data={books}
+            keyExtractor={(book) => book.id}
+            renderItem={({ item }) => <BookItem book={item} />}
+            renderHiddenItem={({ item }) => (
+              <Pressable
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "flex-end",
+                  backgroundColor: "red",
+                  paddingRight: spacing.md,
+                  borderRadius: 12,
+                  marginBottom: spacing.lg,
+                }}
+                onPress={() => removeBook(item.id)} // ⬅️ we’ll add this function in useBookQuotes.ts
+              >
+                <Text style={{ color: "white", fontWeight: "600" }}>Delete</Text>
+              </Pressable>
+            )}
+            rightOpenValue={-75}
+          />
 
-          {books.map((book) => (
-            <BookItem key={book.id} book={book} />
-          ))}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

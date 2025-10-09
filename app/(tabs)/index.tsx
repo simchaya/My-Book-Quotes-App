@@ -1,195 +1,33 @@
-import * as ImagePicker from "expo-image-picker";
-import React, { useState } from "react";
+// app/(tabs)/index.tsx
+
+import React from "react";
 import {
-  Image,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+  StyleSheet
 } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import { Book, useBookQuotes } from "@/hooks/useBookQuotes";
-import { spacing, typography, useThemeColors } from "@/utils/theme";
-
 import { SwipeListView } from "react-native-swipe-list-view";
 
-// Component for displaying one book + its quotes + optional cover photo
-const BookItem = ({ book }: { book: Book }) => {
-  const colors = useThemeColors();
+import { useBookQuotes } from "@/hooks/useBookQuotes";
+import { spacing, useThemeColors } from "@/utils"; // using consolidated index
 
-  return (
-    <View style={[styles.bookItem, { backgroundColor: colors.card }]}>
-      <Text style={[typography.title2, { color: colors.text }]}>
-        {book.title}
-      </Text>
+import BookInputForm from "@/components/BookInputForm"; //Refactor // new import 
+import BookListItem from "@/components/BookListItem"; // //Refactor //New import
+import SwipeDeleteButton from "@/components/SwipeDeleteButton"; // //Refactor // New import
 
-      {/* Show cover if saved */}
-      {book.coverUri && (
-        <Image
-          source={{ uri: book.coverUri }}
-          style={{
-            width: "100%",
-            height: 150,
-            borderRadius: 8,
-            marginTop: spacing.sm,
-            marginBottom: spacing.sm,
-          }}
-          resizeMode="cover"
-        />
-      )}
+// Refactor: Removed the inline BookItem component (moved to Step 3)
+// Refactor: Removed title, quote, coverUri state variables
+// Refactor: Removed handlePickCover, handleSaveQuote functions
+// Refactor: Removed renderHeader function
 
-      {book.quotes.map((q, index) => (
-        <Text
-          key={`${book.id}-${q.id ?? index}`}
-          style={[
-            typography.body,
-            { color: colors.secondaryText, fontStyle: "italic" },
-          ]}
-        >
-          “{q.text}”
-        </Text>
-      ))}
-    </View>
-  );
-};
 
+// HomeScreen is a container that delegates the rendering of individual items to BookListItem.
+// It's a container component responsible for managing the state and rendering the entire view, 
+// including the input form and the list itself.
 export default function HomeScreen() {
   const { books, addQuoteToBook, removeBook } = useBookQuotes();
-  const [title, setTitle] = useState("");
-  const [quote, setQuote] = useState("");
-  const [coverUri, setCoverUri] = useState<string | null>(null);
   const colors = useThemeColors();
-
-  // Pick photo from camera
-  const handlePickCover = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      alert("Camera permission is required to take a photo");
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [3, 4],
-      quality: 0.7,
-    });
-
-    if (!result.canceled) {
-      setCoverUri(result.assets[0].uri);
-    }
-  };
-
-  // Handle saving new quote
-  const handleSaveQuote = () => {
-    if (!title.trim() || !quote.trim()) return;
-    addQuoteToBook(title, quote, coverUri ?? undefined);
-    setQuote("");
-    setTitle("");
-    setCoverUri(null);
-  };
-
-  // Header with form
-  const renderHeader = () => (
-    <View>
-      <Text
-        style={[
-          typography.largeTitle,
-          { color: colors.text, textAlign: "center", marginBottom: spacing.lg },
-        ]}
-      >
-        My Book Quotes
-      </Text>
-
-      {/* Book Title input */}
-      <Text
-        style={[
-          typography.body,
-          { color: colors.secondaryText, marginBottom: spacing.xs },
-        ]}
-      >
-        Book Title
-      </Text>
-      <TextInput
-        style={[
-          styles.input,
-          {
-            borderColor: colors.border,
-            color: colors.text,
-            backgroundColor: colors.background,
-          },
-        ]}
-        placeholder="Book Title"
-        placeholderTextColor={colors.placeholder}
-        value={title}
-        onChangeText={setTitle}
-      />
-
-      {/* Quote input */}
-      <Text
-        style={[
-          typography.body,
-          { color: colors.secondaryText, marginBottom: spacing.xs },
-        ]}
-      >
-        Favorite Quote
-      </Text>
-      <TextInput
-        style={[
-          styles.input,
-          {
-            borderColor: colors.border,
-            color: colors.text,
-            backgroundColor: colors.background,
-          },
-        ]}
-        placeholder="Favorite Quote"
-        placeholderTextColor={colors.placeholder}
-        value={quote}
-        onChangeText={setQuote}
-      />
-
-      {/* Take Photo button */}
-      <Pressable
-        style={[styles.saveButton, { backgroundColor: colors.card }]}
-        onPress={handlePickCover}
-      >
-        <Text style={[typography.body, styles.saveButtonText, { color: colors.text }]}>
-          Take Book Cover Photo
-        </Text>
-      </Pressable>
-
-      {/* Show preview before saving */}
-      {coverUri && (
-        <Image
-          source={{ uri: coverUri }}
-          style={{ width: "100%", height: 150, borderRadius: 8, marginBottom: spacing.md }}
-          resizeMode="cover"
-        />
-      )}
-
-      {/* Save button */}
-      <Pressable
-        style={[styles.saveButton, { backgroundColor: colors.buttonBg }]}
-        onPress={handleSaveQuote}
-        accessibilityRole="button"
-      >
-        <Text
-          style={[
-            typography.body,
-            styles.saveButtonText,
-            { color: colors.buttonText },
-          ]}
-        >
-          Save Quote
-        </Text>
-      </Pressable>
-    </View>
-  );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -200,26 +38,26 @@ export default function HomeScreen() {
         <SwipeListView
           data={books}
           keyExtractor={(book) => book.id}
-          renderItem={({ item }) => <BookItem book={item} />}
+          // Refactor: ListHeaderComponent uses the new component
+          ListHeaderComponent={<BookInputForm onSave={addQuoteToBook} />} 
+          // Refactor: Render item using the new component
+          renderItem={({ item }) => <BookListItem book={item} />}
+          // Refactor: Render hidden item using the new component
           renderHiddenItem={({ item }) => (
-            <Pressable
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "flex-end",
-                backgroundColor: "red",
-                paddingRight: spacing.md,
-                borderRadius: 12,
-                marginBottom: spacing.lg,
-              }}
-              onPress={() => removeBook(item.id)}
-            >
-              <Text style={{ color: "white", fontWeight: "600" }}>Delete</Text>
-            </Pressable>
+            <SwipeDeleteButton onPress={() => removeBook(item.id)} />
           )}
+          //Controls how far the row must be swiped to reveal the hidden item (the Delete button).
+          // -75 means the user must swipe 75 units to the left. The value is negative 
+          // because the hidden item is on the right side of the list row.
           rightOpenValue={-75}
-          ListHeaderComponent={renderHeader}
+          //Applies padding to the bottom of the *entire content* inside the list. 
+          // This ensures the last list item isn't cut off by the bottom of the screen or 
+          // the device's home indicator (notch/bar) when scrolling down.
           contentContainerStyle={{ paddingBottom: spacing.lg }}
+          // Manages how touch events are handled when the software keyboard is open.
+          // "handled" ensures that when a user taps outside of a focused TextInput (like tapping 
+          // a button or another scrollable item), the tap event is processed immediately 
+          // without automatically dismissing the keyboard. This prevents accidental keyboard closures.
           keyboardShouldPersistTaps="handled"
         />
       </KeyboardAvoidingView>
@@ -229,22 +67,4 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md },
-  input: {
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  saveButton: {
-    borderRadius: 10,
-    paddingVertical: spacing.md,
-    alignItems: "center",
-    marginBottom: spacing.lg,
-  },
-  saveButtonText: { fontWeight: "600" },
-  bookItem: {
-    marginBottom: spacing.lg,
-    padding: spacing.md,
-    borderRadius: 12,
-  },
 });

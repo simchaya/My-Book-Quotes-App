@@ -1,6 +1,8 @@
-import { getObject, storeObject } from "@/utils/async-storage";
-import { uniqueId } from "@/utils/id"; // helper to generate unique IDs safely
+//Refactoring//import { getObject, storeObject } from "@/utils/async-storage";
+//Refactoring//import { uniqueId } from "@/utils/id"; // helper to generate unique IDs safely
 import { useEffect, useState } from "react";
+
+import { getObject, storeObject, uniqueId } from "@/utils";
 
 // Each quote has an id + text
 export type Quote = {

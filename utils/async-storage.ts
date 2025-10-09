@@ -1,39 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
- * Save a plain string value.
- */
-export const storeData = async (key: string, value: string) => {
-  try {
-    await AsyncStorage.setItem(key, value);
-  } catch (error) {
-    console.error("Error storing string value:", error);
-  }
-};
-
-/**
- * Retrieve a plain string value.
- */
-export const getData = async (key: string) => {
-  try {
-    return await AsyncStorage.getItem(key);
-  } catch (error) {
-    console.error("Error reading string value:", error);
-  }
-};
-
-/**
- * Delete an item by key.
- */
-export const deleteData = async (key: string) => {
-  try {
-    await AsyncStorage.removeItem(key);
-  } catch (error) {
-    console.error("Error deleting value:", error);
-  }
-};
-
-/**
  * Save an object/array (converts to JSON).
  * Example: storeObject("books", [{ id: "1", title: "Book", quotes: [] }])
  */
@@ -57,5 +24,16 @@ export const getObject = async (key: string) => {
   } catch (error) {
     console.error("Error reading object:", error);
     return null;
+  }
+};
+
+/**
+ * Delete an item by key.
+ */
+export const deleteObject = async (key: string) => {
+  try {
+    await AsyncStorage.removeItem(key);
+  } catch (error) {
+    console.error("Error deleting value:", error);
   }
 };

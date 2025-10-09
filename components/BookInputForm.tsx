@@ -1,5 +1,6 @@
 // components/BookInputForm.tsx
 
+import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import {
   Image,
@@ -9,7 +10,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 
 import { spacing, typography, useThemeColors } from "@/utils"; // using consolidated index
 
@@ -49,7 +49,7 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
   const handleSaveQuote = () => {
     if (!title.trim() || !quote.trim()) return;
     // Refactoring // CHANGED: Using the onSave prop instead of the hook function
-    onSave(title, quote, coverUri ?? undefined); 
+    onSave(title, quote, coverUri ?? undefined);
     setQuote("");
     setTitle("");
     setCoverUri(null);
@@ -61,17 +61,31 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
       <Text
         style={[
           typography.largeTitle,
-          { color: colors.text, textAlign: "center", marginBottom: spacing.lg },
+          styles.titleText,
+          { color: colors.text },
         ]}
       >
-        My Book Quotes
+        MarkItDown
+      </Text>
+
+      <Text
+        style={[
+          typography.callout,
+          styles.subtitleText,
+          {
+            color: colors.secondaryText,
+          },
+        ]}
+      >
+        Mark it down before it fades...
       </Text>
 
       {/* Book Title input */}
       <Text
         style={[
           typography.body,
-          { color: colors.secondaryText, marginBottom: spacing.xs },
+          styles.label,
+          { color: colors.secondaryText},
         ]}
       >
         Book Title
@@ -95,7 +109,8 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
       <Text
         style={[
           typography.body,
-          { color: colors.secondaryText, marginBottom: spacing.xs },
+          styles.label,
+          { color: colors.secondaryText},
         ]}
       >
         Favorite Quote
@@ -157,7 +172,22 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
 // Refactoring: NEW: Dedicated StyleSheet block for the component
 
 const styles = StyleSheet.create({
-// Refactoring: MOVED: input style is identical
+    // title styles
+    titleText: {
+      textAlign: "center",
+      marginBottom: spacing.lg,
+    },
+  // subtitle styles
+  subtitleText: {
+    textAlign: "center",
+    fontStyle: "italic",
+    marginBottom: spacing.lg,
+  },
+    // label styles
+    label: {
+      marginBottom: spacing.xs,
+    },
+  // Refactoring: MOVED: input style is identical
   input: {
     borderWidth: 1,
     borderRadius: 10,
@@ -165,20 +195,20 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   // Refactoring: CHANGED KEY: Renamed from saveButton for clarity
-  actionButton: { 
+  actionButton: {
     borderRadius: 10,
     paddingVertical: spacing.md,
     alignItems: "center",
     marginBottom: spacing.lg,
   },
-   // Refactoring: MOVED: buttonText style is identical
+  // Refactoring: MOVED: buttonText style is identical
   buttonText: { fontWeight: "600" },
   //  Refactoring: NEW KEY: Extracted image styles from inline JSX
-  previewImage: { 
-    width: "100%", 
-    height: 150, 
-    borderRadius: 8, 
-    marginBottom: spacing.md 
+  previewImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 8,
+    marginBottom: spacing.md
   }
 });
 

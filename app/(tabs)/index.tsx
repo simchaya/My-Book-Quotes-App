@@ -32,7 +32,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={[styles.keyboardContainer]}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <SwipeListView
@@ -67,4 +67,5 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md },
+  keyboardContainer: { flex: 1 },
 });

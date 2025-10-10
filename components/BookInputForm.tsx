@@ -77,7 +77,7 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
           },
         ]}
       >
-        Mark it down before it fades...
+        to be kept forever.
       </Text>
 
       {/* Book Title input */}
@@ -175,13 +175,15 @@ const styles = StyleSheet.create({
     // title styles
     titleText: {
       textAlign: "center",
-      marginBottom: spacing.lg,
+        fontWeight: "700", // visually strong, but not all-caps
+        marginBottom: spacing.xs, // small separation from subtitle
     },
   // subtitle styles
   subtitleText: {
     textAlign: "center",
     fontStyle: "italic",
     marginBottom: spacing.lg,
+    letterSpacing: 0.3, // gentle openness
   },
     // label styles
     label: {
@@ -213,3 +215,21 @@ const styles = StyleSheet.create({
 });
 
 export default BookInputForm;
+
+//     MarkItDown
+//   </Text>
+
+//   <Text
+//     style={[
+//       typography.subhead,
+//       {
+//         color: colors.secondaryText,
+//         fontStyle: "italic",
+//         textAlign: "center",
+//         letterSpacing: 0.3, // gentle openness
+//       },
+//     ]}
+//   >
+//     to be kept forever.
+//   </Text>
+// </View>

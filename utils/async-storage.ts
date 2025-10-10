@@ -29,6 +29,11 @@ export const getObject = async (key: string) => {
 
 /**
  * Delete an item by key.
+ * deleteObject will  not be called for deleting a book or quote. 
+ * These actions are handled by updating the books array in the hook 
+ * and then calling storeObject to save the new array.
+ * The deleteObject function is only for wiping the entire storage key
+ * (e.g., clearing all data). currently there isn't a button to allow this
  */
 export const deleteObject = async (key: string) => {
   try {

@@ -1,89 +1,96 @@
-//Refactoring//import { getObject, storeObject } from "@/utils/async-storage";
-//Refactoring//import { uniqueId } from "@/utils/id"; // helper to generate unique IDs safely
-import { useEffect, useState } from "react";
+import { generateId } from "@/utils";
+import { useCallback, useEffect, useState } from "react";
 
-import { getObject, storeObject, uniqueId } from "@/utils";
+import {
+  deleteBook,
+  deleteQuote,
+  getBooksWithQuotes,
+  initDatabase,
+  insertBook,
+  insertQuote,
+  updateBookTitle,
+  updateQuote,
+} from "@/utils/database";
 
-// Each quote has an id + text
-export type Quote = {
-  id: string;
-  text: string;
-};
-
-// Each book has an id, title, and a list of quotes
-export type Book = {
-  id: string;
-  title: string;
-  quotes: Quote[];
-  coverUri?: string;
-};
+// Types
+export type Quote = { id: string; text: string };
+export type Book = { id: string; title: string; quotes: Quote[]; coverUri?: string };
 
 export const useBookQuotes = () => {
   const [books, setBooks] = useState<Book[]>([]);
 
-  // Load books from storage on first render
+  // -----------------------------
+  // INITIAL LOAD
+  // -----------------------------
   useEffect(() => {
     const loadBooks = async () => {
-      const saved = await getObject("books");
-      if (saved) {
-        // ensure every book + quote has an id
-        const fixed = (saved as Book[]).map((b) => ({
-          ...b,
-          id: b.id ?? uniqueId(),
-          quotes: b.quotes.map((q) => ({
-            ...q,
-            id: q.id ?? uniqueId(),
-          })),
-        }));
-        setBooks(fixed);
+      // 1. Initialize DB (ensures tables exist)
+      await initDatabase();
 
-        // save back fixed data so it persists
-        storeObject("books", fixed);
-      }
+      // 2. Load all current data from SQLite and set state
+      const sqlBooks = await getBooksWithQuotes();
+      setBooks(sqlBooks);
     };
-    loadBooks();
+
+    loadBooks().catch(console.error);
   }, []);
 
-  // Persist books whenever they change
-  useEffect(() => {
-    if (books.length > 0) {
-      storeObject("books", books);
-      console.log("Books saved:", books);
+  // -----------------------------
+  // CRUD OPERATIONS
+  // -----------------------------
+
+  const addQuoteToBook = useCallback(async (title: string, quote: string, coverUri?: string) => {
+    const existing = books.find(
+      (b) => b.title.toLowerCase() === title.toLowerCase()
+    );
+
+    const quoteId = generateId();
+
+    if (existing) {
+      await insertQuote(quoteId, existing.id, quote);
+    } else {
+      const bookId = generateId();
+      await insertBook(bookId, title, coverUri);
+      await insertQuote(quoteId, bookId, quote);
     }
+
+    // Refresh local state after all writes are complete
+    const updated = await getBooksWithQuotes();
+    setBooks(updated);
+
   }, [books]);
 
-  // Add a quote to an existing book OR create a new book
-  const addQuoteToBook = (title: string, quote: string, coverUri?: string) => {
-    const newQuote: Quote = { id: uniqueId(), text: quote };
+  const removeBookById = useCallback(async (bookId: string) => {
+    await deleteBook(bookId);
+    const updated = await getBooksWithQuotes();
+    setBooks(updated);
 
-    setBooks((prevBooks) => {
-      const existingBook = prevBooks.find(
-        (book) => book.title.toLowerCase() === title.toLowerCase()
-      );
+  }, []);
 
-      if (existingBook) {
-        return prevBooks.map((book) =>
-          book.id === existingBook.id
-            ? {
-                ...book,
-                quotes: [...book.quotes, newQuote],
-                coverUri: coverUri ?? book.coverUri, // replace cover if provided
-              }
-            : book
-        );
-      } else {
-        return [
-          ...prevBooks,
-          { id: uniqueId(), title, quotes: [newQuote], coverUri },
-        ];
-      }
-    });
+  const removeQuoteById = useCallback(async (quoteId: string) => {
+    await deleteQuote(quoteId);
+    const updated = await getBooksWithQuotes();
+    setBooks(updated);
+  }, []);
+
+  const editQuote = useCallback(async (quoteId: string, newText: string) => {
+    await updateQuote(quoteId, newText);
+    const updated = await getBooksWithQuotes();
+    setBooks(updated);
+  }, []);
+
+  const editBookTitle = useCallback(async (bookId: string, newTitle: string) => {
+    await updateBookTitle(bookId, newTitle);
+    const updated = await getBooksWithQuotes();
+    setBooks(updated);
+  }, []);
+
+  return {
+    books,
+    addQuoteToBook,
+    removeBookById,
+    removeQuoteById,
+    editQuote,
+    editBookTitle,
   };
-
-  // Remove a whole book
-  const removeBook = (bookId: string) => {
-    setBooks((prev) => prev.filter((book) => book.id !== bookId));
-  };
-
-  return { books, addQuoteToBook, removeBook };
 };

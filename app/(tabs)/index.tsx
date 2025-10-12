@@ -26,7 +26,7 @@ import SwipeDeleteButton from "@/components/SwipeDeleteButton"; // //Refactor //
 // It's a container component responsible for managing the state and rendering the entire view, 
 // including the input form and the list itself.
 export default function HomeScreen() {
-  const { books, addQuoteToBook, removeBook } = useBookQuotes();
+  const { books, addQuoteToBook, removeBookById } = useBookQuotes();
   const colors = useThemeColors();
 
   return (
@@ -44,7 +44,7 @@ export default function HomeScreen() {
           renderItem={({ item }) => <BookListItem book={item} />}
           // Refactor: Render hidden item using the new component
           renderHiddenItem={({ item }) => (
-            <SwipeDeleteButton onPress={() => removeBook(item.id)} />
+            <SwipeDeleteButton onPress={() => removeBookById (item.id)} />
           )}
           //Controls how far the row must be swiped to reveal the hidden item (the Delete button).
           // -75 means the user must swipe 75 units to the left. The value is negative 

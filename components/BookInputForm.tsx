@@ -215,21 +215,3 @@ const styles = StyleSheet.create({
 });
 
 export default BookInputForm;
-
-//     MarkItDown
-//   </Text>
-
-//   <Text
-//     style={[
-//       typography.subhead,
-//       {
-//         color: colors.secondaryText,
-//         fontStyle: "italic",
-//         textAlign: "center",
-//         letterSpacing: 0.3, // gentle openness
-//       },
-//     ]}
-//   >
-//     to be kept forever.
-//   </Text>
-// </View>

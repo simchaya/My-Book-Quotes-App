@@ -26,7 +26,14 @@ import SwipeDeleteButton from "@/components/SwipeDeleteButton"; // //Refactor //
 // It's a container component responsible for managing the state and rendering the entire view, 
 // including the input form and the list itself.
 export default function HomeScreen() {
-  const { books, addQuoteToBook, removeBookById } = useBookQuotes();
+  const {
+     books, 
+     addQuoteToBook, 
+     removeBookById,
+     removeQuoteById, 
+     editQuote, 
+     editBookTitle 
+    } = useBookQuotes();
   const colors = useThemeColors();
 
   return (
@@ -41,7 +48,16 @@ export default function HomeScreen() {
           // Refactor: ListHeaderComponent uses the new component
           ListHeaderComponent={<BookInputForm onSave={addQuoteToBook} />} 
           // Refactor: Render item using the new component
-          renderItem={({ item }) => <BookListItem book={item} />}
+          renderItem={({ item }) =>
+            (
+              <BookListItem 
+                book={item} 
+                onDeleteQuote={removeQuoteById} 
+                onUpdateTitle={editBookTitle} 
+                onUpdateQuote={editQuote} 
+              />
+            )}
+            
           // Refactor: Render hidden item using the new component
           renderHiddenItem={({ item }) => (
             <SwipeDeleteButton onPress={() => removeBookById (item.id)} />

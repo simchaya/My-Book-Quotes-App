@@ -1,0 +1,34 @@
+.gcloudignore for Cloud Function Deployment
+
+This file must be in the ROOT of your MarkItDown project.
+
+It overrides the default gcloud ignore to ONLY allow the 'cloud-function'
+
+directory to be uploaded when using the --source flag.
+
+--- EXPLICITLY IGNORE ALL EXPO/APP FILES ---
+
+Ignore the entire Expo application structure
+
+app/
+assets/
+components/
+hooks/
+utils/
+.expo/
+
+Ignore configuration and lock files from the Expo project root
+
+babel.config.js
+metro.config.js
+package.json
+package-lock.json
+yarn.lock
+node_modules/
+.git/
+.gitignore
+.DS_Store
+
+Also ignore the old, wrong ignore file
+
+cloud-function/.gcloudignore

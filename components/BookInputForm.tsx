@@ -1,217 +1,118 @@
-// components/BookInputForm.tsx
+/**
+ * BookInputForm.tsx
+ * -----------------
+ * Presentational component for adding a new book quote.
+ *
+ * Update:
+ * - Simplified placeholder text for a calmer, less intrusive look.
+ * - Keeps the WhatsApp-style inline camera icon for cover capture.
+ */
 
-import * as ImagePicker from "expo-image-picker";
-import React, { useState } from "react";
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Feather } from "@expo/vector-icons";
+import React from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { spacing, typography, useThemeColors } from "@/utils"; // using consolidated index
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import { useBookInput } from "@/hooks/useBookInput";
+import { spacing, typography, useThemeColors } from "@/utils";
 
-// Refactoring // NEW: Component definition and prop typing
 interface BookInputFormProps {
   onSave: (title: string, quote: string, coverUri?: string) => void;
 }
 
-
-// Refactoring // NEW: Functional component definition, receiving 'onSave'
 const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
-  const [title, setTitle] = useState("");
-  const [quote, setQuote] = useState("");
-  const [coverUri, setCoverUri] = useState<string | null>(null);
+  const { title, setTitle, quote, setQuote, coverUri, handlePickCover, handleSave } =
+    useBookInput(onSave);
+
   const colors = useThemeColors();
 
-  // Refactoring // Pick photo from camera (Logic MOVED from index.tsx)
-  const handlePickCover = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      alert("Camera permission is required to take a photo");
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [3, 4],
-      quality: 0.7,
-    });
-
-    if (!result.canceled) {
-      setCoverUri(result.assets[0].uri);
-    }
-  };
-
-  // Refactoring // Handle saving new quote (Logic MOVED from indec.tsx, one line changed)
-  const handleSaveQuote = () => {
-    if (!title.trim() || !quote.trim()) return;
-    // Refactoring // CHANGED: Using the onSave prop instead of the hook function
-    onSave(title, quote, coverUri ?? undefined);
-    setQuote("");
-    setTitle("");
-    setCoverUri(null);
-  };
-
-  // Refactoring // JSX structure MOVED from renderHeader
   return (
     <View>
-      <Text
-        style={[
-          typography.largeTitle,
-          styles.titleText,
-          { color: colors.text },
-        ]}
-      >
+      {/* Header */}
+      <Text style={[typography.largeTitle, styles.title, { color: colors.text }]}>
         MarkItDown
       </Text>
-
-      <Text
-        style={[
-          typography.callout,
-          styles.subtitleText,
-          {
-            color: colors.secondaryText,
-          },
-        ]}
-      >
+      <Text style={[typography.callout, styles.subtitle, { color: colors.secondaryText }]}>
         to be kept forever.
       </Text>
 
-      {/* Book Title input */}
-      <Text
-        style={[
-          typography.body,
-          styles.label,
-          { color: colors.secondaryText},
-        ]}
-      >
-        Book Title
-      </Text>
-      <TextInput
-        style={[
-          styles.input,
-          {
-            borderColor: colors.border,
-            color: colors.text,
-            backgroundColor: colors.background,
-          },
-        ]}
-        placeholder="Book Title"
-        placeholderTextColor={colors.placeholder}
-        value={title}
-        onChangeText={setTitle}
-      />
+      {/* --- Book Title / Author Input with inline camera icon --- */}
+      <View style={styles.inputWithIcon}>
+        <FormInput
+          label="Book Title / Author"
+          placeholder="Book title and author"
+          value={title}
+          onChangeText={setTitle}
+          style={{ paddingRight: 40 }}
+        />
 
-      {/* Quote input */}
-      <Text
-        style={[
-          typography.body,
-          styles.label,
-          { color: colors.secondaryText},
-        ]}
-      >
-        Favorite Quote
-      </Text>
-      <TextInput
-        style={[
-          styles.input,
-          {
-            borderColor: colors.border,
-            color: colors.text,
-            backgroundColor: colors.background,
-          },
-        ]}
-        placeholder="Favorite Quote"
-        placeholderTextColor={colors.placeholder}
+        <Pressable
+          onPress={handlePickCover}
+          accessibilityLabel="Take Book Cover Photo"
+          style={styles.iconButton}
+        >
+          <Feather
+            name="camera"
+            size={22}
+            color={coverUri ? colors.buttonBg : colors.secondaryText}
+          />
+        </Pressable>
+      </View>
+
+      {/* Favorite Quote Input */}
+      <FormInput
+        label="Favorite Quote"
+        placeholder="Add your quote"
         value={quote}
         onChangeText={setQuote}
+        multiline
       />
 
-      {/* REFACTORING: Take Photo button (style key updated) */}
-      <Pressable
-        style={[styles.actionButton, { backgroundColor: colors.card }]}
-        onPress={handlePickCover}
-      >
-        <Text style={[typography.body, styles.buttonText, { color: colors.text }]}>
-          Take Book Cover Photo
-        </Text>
-      </Pressable>
-
-      {/* Show preview before saving */}
+      {/* Optional preview image */}
       {coverUri && (
         <Image
           source={{ uri: coverUri }}
-          style={styles.previewImage} // REFACTORING: NEW: Using a StyleSheet key
-          resizeMode="cover"
+          style={[styles.image, { borderColor: colors.border }]}
         />
       )}
 
-      {/* Save button (REFACTORING: style key updated) */}
-      <Pressable
-        style={[styles.actionButton, { backgroundColor: colors.buttonBg }]}
-        onPress={handleSaveQuote}
-        accessibilityRole="button"
-      >
-        <Text
-          style={[
-            typography.body,
-            styles.buttonText,
-            { color: colors.buttonText },
-          ]}
-        >
-          Save Quote
-        </Text>
-      </Pressable>
+      {/* Save Quote Button */}
+      <FormButton title="Save Quote" onPress={handleSave} />
     </View>
   );
 };
 
-// Refactoring: NEW: Dedicated StyleSheet block for the component
-
 const styles = StyleSheet.create({
-    // title styles
-    titleText: {
-      textAlign: "center",
-        fontWeight: "700", // visually strong, but not all-caps
-        marginBottom: spacing.xs, // small separation from subtitle
-    },
-  // subtitle styles
-  subtitleText: {
+  title: {
+    textAlign: "center",
+    fontWeight: "700",
+    marginBottom: spacing.xs,
+  },
+  subtitle: {
     textAlign: "center",
     fontStyle: "italic",
     marginBottom: spacing.lg,
-    letterSpacing: 0.3, // gentle openness
+    letterSpacing: 0.3,
   },
-    // label styles
-    label: {
-      marginBottom: spacing.xs,
-    },
-  // Refactoring: MOVED: input style is identical
-  input: {
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: spacing.md,
+  inputWithIcon: {
+    position: "relative",
     marginBottom: spacing.md,
   },
-  // Refactoring: CHANGED KEY: Renamed from saveButton for clarity
-  actionButton: {
-    borderRadius: 10,
-    paddingVertical: spacing.md,
-    alignItems: "center",
-    marginBottom: spacing.lg,
+  iconButton: {
+    position: "absolute",
+    right: spacing.md,
+    top: "50%",
+    transform: [{ translateY: -11 }],
+    padding: spacing.xs,
   },
-  // Refactoring: MOVED: buttonText style is identical
-  buttonText: { fontWeight: "600" },
-  //  Refactoring: NEW KEY: Extracted image styles from inline JSX
-  previewImage: {
+  image: {
     width: "100%",
     height: 150,
-    borderRadius: 8,
-    marginBottom: spacing.md
-  }
+    borderRadius: 10,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+  },
 });
 
 export default BookInputForm;

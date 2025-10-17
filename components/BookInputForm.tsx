@@ -3,14 +3,23 @@
  * -----------------
  * Presentational component for adding a new book quote.
  *
- * Update:
- * - Simplified placeholder text for a calmer, less intrusive look.
- * - Keeps the WhatsApp-style inline camera icon for cover capture.
+ * Refactored for clarity:
+ * - Removed micro-UX (AppState focus logic) — no longer needed.
+ * - Extracted custom placeholder into a small internal component.
+ * - Streamlined layout and comments.
  */
 
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import FormButton from "@/components/FormButton";
 import FormInput from "@/components/FormInput";
@@ -21,11 +30,47 @@ interface BookInputFormProps {
   onSave: (title: string, quote: string, coverUri?: string) => void;
 }
 
+// ----------------------
+// Internal helper
+// ----------------------
+const QuotePlaceholder = ({ isIOS }: { isIOS: boolean }) => {
+  const colors = useThemeColors();
+  return (
+    <View pointerEvents="none" style={styles.placeholderContainer}>
+      <Text
+        style={[
+          typography.body,
+          styles.placeholderText,
+          { color: colors.placeholder },
+        ]}
+      >
+        Enter your quote
+      </Text>
+      <Text
+        style={[
+          typography.caption,
+          styles.placeholderHint,
+          { color: colors.secondaryText },
+        ]}
+      >
+        Hint:{" "}
+        {isIOS
+          ? "use Live Text on your camera to capture your quote"
+          : "use Google Lens on your camera to capture your quote"}
+      </Text>
+    </View>
+  );
+};
+
+// ----------------------
+// Main component
+// ----------------------
 const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
   const { title, setTitle, quote, setQuote, coverUri, handlePickCover, handleSave } =
     useBookInput(onSave);
 
   const colors = useThemeColors();
+  const isIOS = Platform.OS === "ios";
 
   return (
     <View>
@@ -37,7 +82,7 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
         to be kept forever.
       </Text>
 
-      {/* --- Book Title / Author Input with inline camera icon --- */}
+      {/* --- Book Title / Author Input with cover photo icon --- */}
       <View style={styles.inputWithIcon}>
         <FormInput
           label="Book Title / Author"
@@ -46,7 +91,6 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
           onChangeText={setTitle}
           style={{ paddingRight: 40 }}
         />
-
         <Pressable
           onPress={handlePickCover}
           accessibilityLabel="Take Book Cover Photo"
@@ -60,16 +104,27 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
         </Pressable>
       </View>
 
-      {/* Favorite Quote Input */}
-      <FormInput
-        label="Favorite Quote"
-        placeholder="Add your quote"
-        value={quote}
-        onChangeText={setQuote}
-        multiline
-      />
+      {/* --- Favorite Quote Input with two-line custom placeholder --- */}
+      <View style={styles.quoteInputContainer}>
+        <TextInput
+          style={[
+            typography.body,
+            styles.quoteInput,
+            {
+              borderColor: colors.border,
+              color: colors.text,
+              backgroundColor: colors.card,
+            },
+          ]}
+          multiline
+          value={quote}
+          onChangeText={setQuote}
+          textAlignVertical="top"
+        />
+        {!quote && <QuotePlaceholder isIOS={isIOS} />}
+      </View>
 
-      {/* Optional preview image */}
+      {/* Optional cover preview */}
       {coverUri && (
         <Image
           source={{ uri: coverUri }}
@@ -83,6 +138,9 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
   );
 };
 
+// ----------------------
+// Styles
+// ----------------------
 const styles = StyleSheet.create({
   title: {
     textAlign: "center",
@@ -105,6 +163,31 @@ const styles = StyleSheet.create({
     top: "50%",
     transform: [{ translateY: -11 }],
     padding: spacing.xs,
+  },
+  quoteInputContainer: {
+    position: "relative",
+    marginBottom: spacing.md,
+  },
+  quoteInput: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: spacing.md,
+    minHeight: 100,
+  },
+  placeholderContainer: {
+    position: "absolute",
+    top: spacing.md,
+    left: spacing.md,
+    right: spacing.md * 2,
+  },
+  placeholderText: {
+    fontSize: 16,
+    lineHeight: 20,
+  },
+  placeholderHint: {
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 2,
   },
   image: {
     width: "100%",

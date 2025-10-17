@@ -11,9 +11,9 @@
  * This component simplifies forms by abstracting repetitive input styling logic.
  */
 
+import { spacing, typography, useThemeColors } from "@/utils";
 import React, { forwardRef } from "react";
 import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
-import { spacing, typography, useThemeColors } from "@/utils";
 
 interface FormInputProps extends TextInputProps {
   label: string;

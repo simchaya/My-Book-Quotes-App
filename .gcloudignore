@@ -1,0 +1,23 @@
+# .gcloudignore for Cloud Function Deployment
+
+# Only upload the 'cloud-function' directory when deploying
+*
+!cloud-function/**
+
+# EXPLICITLY IGNORE ALL EXPO/APP FILES
+app/
+assets/
+components/
+hooks/
+utils/
+.expo/
+babel.config.js
+metro.config.js
+package.json
+package-lock.json
+yarn.lock
+node_modules/
+.git/
+.gitignore
+.DS_Store
+cloud-function/.gcloudignore

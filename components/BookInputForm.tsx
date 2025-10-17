@@ -33,8 +33,9 @@ interface BookInputFormProps {
 // ----------------------
 // Internal helper
 // ----------------------
-const QuotePlaceholder = ({ isIOS }: { isIOS: boolean }) => {
+const QuotePlaceholder = () => {
   const colors = useThemeColors();
+
   return (
     <View pointerEvents="none" style={styles.placeholderContainer}>
       <Text
@@ -46,18 +47,6 @@ const QuotePlaceholder = ({ isIOS }: { isIOS: boolean }) => {
       >
         Enter your quote
       </Text>
-      <Text
-        style={[
-          typography.caption,
-          styles.placeholderHint,
-          { color: colors.secondaryText },
-        ]}
-      >
-        Hint:{" "}
-        {isIOS
-          ? "use Live Text on your camera to capture your quote"
-          : "use Google Lens on your camera to capture your quote"}
-      </Text>
     </View>
   );
 };
@@ -66,12 +55,22 @@ const QuotePlaceholder = ({ isIOS }: { isIOS: boolean }) => {
 // Main component
 // ----------------------
 const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
-  const { title, setTitle, quote, setQuote, coverUri, handlePickCover, handleSave } =
-    useBookInput(onSave);
+  
+  const {
+    title,
+    setTitle,
+    quote,
+    setQuote,
+    coverUri,
+    handlePickCover,
+    handleSave,
+    handleOcrFromImage,
+  } = useBookInput(onSave);
+  
 
   const colors = useThemeColors();
   const isIOS = Platform.OS === "ios";
-
+  
   return (
     <View>
       {/* Header */}
@@ -104,8 +103,8 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
         </Pressable>
       </View>
 
-      {/* --- Favorite Quote Input with two-line custom placeholder --- */}
-      <View style={styles.quoteInputContainer}>
+      {/* --- Favorite Quote Input with OCR camera icon --- */}
+      <View style={styles.inputWithIcon}>
         <TextInput
           style={[
             typography.body,
@@ -114,6 +113,7 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
               borderColor: colors.border,
               color: colors.text,
               backgroundColor: colors.card,
+              paddingRight: 40, // space for the camera icon
             },
           ]}
           multiline
@@ -121,8 +121,22 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
           onChangeText={setQuote}
           textAlignVertical="top"
         />
-        {!quote && <QuotePlaceholder isIOS={isIOS} />}
+        {!quote && <QuotePlaceholder />}
+
+        {/* OCR Camera icon (same look as title field) */}
+        <Pressable
+          onPress={handleOcrFromImage} // will connect in Step 3B
+          accessibilityLabel="Scan quote from image"
+          style={styles.iconButton}
+        >
+          <Feather
+            name="camera"
+            size={22}
+            color={colors.secondaryText}
+          />
+        </Pressable>
       </View>
+
 
       {/* Optional cover preview */}
       {coverUri && (

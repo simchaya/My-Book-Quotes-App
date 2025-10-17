@@ -13,8 +13,9 @@
  * improves testability, and follows the principle of separation of concerns.
  */
 
+import * as FileSystem from "expo-file-system/legacy";
 import * as ImagePicker from "expo-image-picker";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Alert } from "react-native";
 
 export const useBookInput = (
@@ -56,6 +57,57 @@ export const useBookInput = (
     setQuote("");
     setCoverUri(null);
   }, [title, quote, coverUri, onSave]);
+  
+  const OCR_FUNCTION_URL =
+  "https://us-central1-capstone-475218.cloudfunctions.net/ocrHandler";
 
-  return { title, setTitle, quote, setQuote, coverUri, handlePickCover, handleSave };
+async function handleOcrFromImage() {
+  try {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission required", "Photo library access is needed.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      quality: 1.0,
+      mediaTypes: "images",
+    });
+
+    if (result.canceled || !result.assets?.[0]?.uri) return;
+    const uri = result.assets[0].uri;
+
+    const base64 = await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
+
+    const response = await fetch(OCR_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64 }),
+    });
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const data = await response.json();
+    if (data.quoteText) {
+      setQuote((prev: string) => prev + data.quoteText);
+    } else {
+      Alert.alert("No text detected", "Try cropping closer to the text.");
+    }
+  } catch (err) {
+    console.error("OCR Error:", err);
+    Alert.alert("Error", "OCR processing failed. See console for details.");
+  }
+}
+
+return {
+  title,
+  setTitle,
+  quote,
+  setQuote,
+  coverUri,
+  handlePickCover,
+  handleSave,
+  handleOcrFromImage,
+};
 };

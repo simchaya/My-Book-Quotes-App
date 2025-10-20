@@ -1,6 +1,7 @@
+// app/(tabs)/_layout.tsx (CORRECTED)
+
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import React from "react";
 
 export default function TabLayout() {
   return (
@@ -11,7 +12,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="index" // Links to app/(tabs)/index.tsx
         options={{
           title: "Books",
           tabBarIcon: ({ color, size }) => (
@@ -20,9 +21,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="about" // ⬅️ CRITICAL FIX: The name must match the file: about.tsx
         options={{
-          title: "Explore",
+          title: "Explore", // The display title can remain "Explore"
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="rocket-outline" size={size} color={color} />
           ),

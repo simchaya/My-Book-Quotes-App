@@ -25,6 +25,8 @@ import SwipeDeleteButton from "@/components/SwipeDeleteButton"; // //Refactor //
 // HomeScreen is a container that delegates the rendering of individual items to BookListItem.
 // It's a container component responsible for managing the state and rendering the entire view, 
 // including the input form and the list itself.
+
+
 export default function HomeScreen() {
   const {
      books, 

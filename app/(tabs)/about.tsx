@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { typography, useThemeColors, spacing } from "../../utils/theme";
+import { spacing, typography, useThemeColors } from "../../utils/theme";
 
 
 export default function AboutScreen() {

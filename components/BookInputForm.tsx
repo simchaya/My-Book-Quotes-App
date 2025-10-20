@@ -112,7 +112,7 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
             {
               borderColor: colors.border,
               color: colors.text,
-              backgroundColor: colors.card,
+              backgroundColor: colors.background,
               paddingRight: 40, // space for the camera icon
             },
           ]}
@@ -190,10 +190,11 @@ const styles = StyleSheet.create({
   },
   placeholderContainer: {
     position: "absolute",
-    top: spacing.md,
+    top: spacing.md - 2,
     left: spacing.md,
     right: spacing.md * 2,
   },
+  
   placeholderText: {
     fontSize: 16,
     lineHeight: 20,

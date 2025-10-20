@@ -61,44 +61,52 @@ export const useBookInput = (
   const OCR_FUNCTION_URL =
   "https://us-central1-capstone-475218.cloudfunctions.net/ocrHandler";
 
-async function handleOcrFromImage() {
-  try {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permission required", "Photo library access is needed.");
-      return;
+  async function handleOcrFromImage() {
+    try {
+      // 1. Ask for camera permission
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission required", "Camera access is needed to take a photo for OCR.");
+        return;
+      }
+  
+      // 2. Launch the camera (in-app)
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,       // allow cropping
+        quality: 1.0,              // highest quality for better OCR accuracy
+        mediaTypes: "images",      // only images
+      });
+  
+      // 3. Handle cancel
+      if (result.canceled || !result.assets?.[0]?.uri) return;
+  
+      const uri = result.assets[0].uri;
+  
+      // 4. Convert to Base64 for OCR
+      const base64 = await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
+  
+      // 5. Send to Cloud Function
+      const response = await fetch(OCR_FUNCTION_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64 }),
+      });
+  
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+  
+      // 6. Handle OCR result
+      if (data.quoteText) {
+        setQuote((prev: string) => prev + data.quoteText);
+      } else {
+        Alert.alert("No text detected", "Try taking a clearer photo of the quote.");
+      }
+    } catch (err) {
+      console.error("OCR Error:", err);
+      Alert.alert("Error", "OCR processing failed. See console for details.");
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      quality: 1.0,
-      mediaTypes: "images",
-    });
-
-    if (result.canceled || !result.assets?.[0]?.uri) return;
-    const uri = result.assets[0].uri;
-
-    const base64 = await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
-
-    const response = await fetch(OCR_FUNCTION_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: base64 }),
-    });
-
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-    const data = await response.json();
-    if (data.quoteText) {
-      setQuote((prev: string) => prev + data.quoteText);
-    } else {
-      Alert.alert("No text detected", "Try cropping closer to the text.");
-    }
-  } catch (err) {
-    console.error("OCR Error:", err);
-    Alert.alert("Error", "OCR processing failed. See console for details.");
   }
-}
+  
 
 return {
   title,

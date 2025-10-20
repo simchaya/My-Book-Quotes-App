@@ -37,7 +37,7 @@ This document captures the main design decisions and lessons from building the B
 
 ### OCR Integration Attempt:
 
-**(October 14, 2025) — Native OCR Exploration and Revert**
+**[October 14, 2025] — Native OCR Exploration and Revert**
 
 **Goal:** Add an on-device Optical Character Recognition (OCR) feature so users could take a photo of a book page and automatically extract the text into the quote field — keeping the process private **and offline**.
 
@@ -58,7 +58,7 @@ This document captures the main design decisions and lessons from building the B
 **Reflection:**
 While technically feasible, the native OCR path required leaving the managed Expo environment and maintaining a full Xcode toolchain — a high-cost trade-off for this feature. This decision prioritized stability and maintainability.
 
-**(October 15, 2025) - Google Cloud Vision OCR Feature Revert & Strategy**
+**[October 15, 2025] - Google Cloud Vision OCR Feature Revert & Strategy**
 
 **Goal**: Trying alternative solution for the same purpose. 
 
@@ -82,6 +82,65 @@ The dedicated OCR functionality was **removed** from the core application. The f
 
 **Git Management:**
 The entire functional OCR implementation (including `BookInputForm.tsx`, `cloud-function/package.json`, and `cloud-function/vision-ocr-function.js`) was isolated and preserved on a separate feature branch (`feature/cloud-ocr`). The clean, simplified version of the input form was retained on the `main` branch, ensuring a stable and efficient core application.
+
+## [October 17, 2025] Development Log Update — Reintegrating OCR Feature
+
+### Process Overview
+
+#### 1. Restoring Cloud Function
+
+* **Folder added:** `/cloud-function/`
+* **Files restored:** `vision-ocr-function.js` and `package.json`
+* **Purpose:** The function handles HTTP `POST` requests with a base64-encoded image and returns extracted text from Google Cloud Vision API.
+* **Deployment note:** The `.gcloudignore` file was recreated to include only the `cloud-function` directory during deployment (excluding app files and node modules).
+
+#### 2. Integrating OCR Trigger in App
+
+* **File affected:** `BookInputForm.tsx`
+* Added a camera icon beside the *Quote* text box to trigger OCR.
+* Introduced a new handler `handleOcrFromImage()` to initiate the OCR workflow.
+
+#### 3. OCR Workflow Implementation
+
+* **Location:** `useBookInput.ts` (custom hook)
+* Implemented `handleOcrFromImage()`:
+
+  1. Requests camera permissions.
+  2. Opens the camera for a new photo capture.
+  3. Converts the image to base64 using `expo-file-system`.
+  4. Sends the base64 string to the deployed Google Cloud Function endpoint.
+  5. Updates the `quote` state with recognized text from the response.
+
+#### 4. Error Handling & Debugging
+
+* Added console logs for each step (permission, capture, encoding, API response).
+* Handled network and permission errors with user alerts.
+* Adjusted deprecated methods in `expo-image-picker` and `expo-file-system`.
+
+#### 5. UX Enhancements
+
+* Removed the hint text (“Use Live Text…” or “Use Google Lens…”) to simplify UI.
+* Camera icon reused from the title field to maintain visual consistency.
+* Placeholder restored to a clean one-line style (“Enter your quote”).
+
+#### 6. Testing & Verification
+
+* Tested image capture on Expo Go (iOS) and confirmed Cloud Function response.
+* Verified successful text extraction with clear printed book quotes.
+* Logged OCR processing states to console for debugging.
+
+### Next Steps (beyond Capstone submission)
+
+* Add OCR for the book cover for book name and authur recognition
+* Add a loading indicator during OCR processing for better feedback.
+* Explore offline fallback using `expo-vision-camera` and local OCR models. integrate LiveText/GoogleLens once ExpoGo add support to the SDK or once the app is in Apple development base using Swift
+* Secure Cloud Function endpoint with Firebase Authentication or API key restrictions.
+
+### Summary
+
+The OCR feature has been successfully reintegrated into the new modular architecture of the app. The workflow now uses Expo APIs for permissions, camera access, and file handling, connecting seamlessly with the existing Google Cloud Function for text recognition. The user can now capture a book quote photo directly in the app and automatically extract and populate the quote text field.
+
+---------------------
 
 ## Future-Plan
 - OCR to convert photo → text quotes. [(October 16, 2025): plan to drop, see "OCR Integration Attempt" section above]

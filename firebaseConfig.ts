@@ -1,7 +1,8 @@
 // firebaseConfig.ts
-import { initializeApp } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { initializeApp } from 'firebase/app';
+// @ts-ignore Firebase 12: no type exports for getReactNativePersistence yet
+import { getReactNativePersistence, initializeAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBOJ_T38oTpIs4pViBKx_hYKLcQy0qNWVo",

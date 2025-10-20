@@ -20,9 +20,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="About"
         options={{
-          title: "Explore",
+          title: "About",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="rocket-outline" size={size} color={color} />
           ),

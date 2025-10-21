@@ -29,6 +29,8 @@ export const useBookInput = (
     const delay = setTimeout(async () => {
       try {
         const fetchedCover = await fetchBookCover(title);
+        // Only set the cover if the fetched cover is different from the current one.
+        // This prevents the Google Books API from running repeatedly if the cover is already set.
         if (fetchedCover && fetchedCover !== coverUri) {
           setCoverUri(fetchedCover);
         }
@@ -103,6 +105,11 @@ export const useBookInput = (
 
       if (result.canceled || !result.assets?.[0]?.uri) return;
       const uri = result.assets[0].uri;
+
+      // 💡 MODIFICATION: Set the local image URI as the cover immediately.
+      // The useEffect hook will asynchronously check for a Google Books cover
+      // and overwrite this local URI if a match is found.
+      setCoverUri(uri);
 
       const base64 = await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
 

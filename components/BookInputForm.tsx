@@ -2,11 +2,6 @@
  * BookInputForm.tsx
  * -----------------
  * Presentational component for adding a new book quote.
- *
- * Refactored for clarity:
- * - Removed micro-UX (AppState focus logic) — no longer needed.
- * - Extracted custom placeholder into a small internal component.
- * - Streamlined layout and comments.
  */
 
 import { Feather } from "@expo/vector-icons";
@@ -63,16 +58,43 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
     quote,
     setQuote,
     coverUri,
-    handlePickCover,
+    handlePickCover, 
     handleSave,
     handleOcrFromImage,
-    isOcrLoading, // NEW: added from useBookInput
+    isOcrLoading,             
+    handleOcrFromTitleImage,  
+    isTitleOcrLoading,        
   } = useBookInput(onSave);
   
 
   const colors = useThemeColors();
   const isIOS = Platform.OS === "ios";
   
+  // NEW: Extracted a reusable icon component for the camera with loading state
+  const CameraIcon = ({ onPress, isLoading }: {
+    onPress: () => void;
+    isLoading: boolean;
+  }) => (
+    // FIX: The comment // Using the original style for positioning is REMOVED to fix the JSX error
+    <View style={styles.iconButton}> 
+      {isLoading ? (
+        <ActivityIndicator size="small" color={colors.secondaryText} />
+      ) : (
+        <Pressable
+          onPress={onPress}
+          accessibilityLabel="Capture text from image"
+          style={{ padding: spacing.xs }}
+        >
+          <Feather
+            name="camera"
+            size={22}
+            color={colors.secondaryText}
+          />
+        </Pressable>
+      )}
+    </View>
+  );
+
   return (
     <View>
       {/* Header */}
@@ -83,26 +105,23 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
         to be kept forever.
       </Text>
 
-      {/* --- Book Title / Author Input with cover photo icon --- */}
+      {/* --- Book Title / Author Input with OCR camera icon --- */}
       <View style={styles.inputWithIcon}>
         <FormInput
           label="Book Title / Author"
           placeholder="Book title and author"
           value={title}
           onChangeText={setTitle}
-          style={{ paddingRight: 40 }}
+          style={{ paddingRight: 40 }} 
         />
-        <Pressable
-          onPress={handlePickCover}
-          accessibilityLabel="Take Book Cover Photo"
-          style={styles.iconButton}
-        >
-          <Feather
-            name="camera"
-            size={22}
-            color={coverUri ? colors.buttonBg : colors.secondaryText}
-          />
-        </Pressable>
+        
+        {/* Title OCR Icon */}
+        <CameraIcon
+            onPress={handleOcrFromTitleImage} 
+            isLoading={isTitleOcrLoading}      
+        />
+
+        {/* Removed: The Pressable for handlePickCover is gone */}
       </View>
 
       {/* --- Favorite Quote Input with OCR camera icon --- */}
@@ -125,23 +144,11 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
         />
         {!quote && <QuotePlaceholder />}
 
-        {/* OCR Camera icon (same look as title field) */}
-        <View style={styles.iconButton}>
-          {isOcrLoading ? ( // NEW: show spinner when OCR is fetching
-            <ActivityIndicator size="small" color={colors.secondaryText} />
-          ) : (
-            <Pressable
-              onPress={handleOcrFromImage}
-              accessibilityLabel="Scan quote from image"
-            >
-              <Feather
-                name="camera"
-                size={22}
-                color={colors.secondaryText}
-              />
-            </Pressable>
-          )}
-        </View>
+        {/* Quote OCR Camera icon */}
+        <CameraIcon
+          onPress={handleOcrFromImage}
+          isLoading={isOcrLoading} 
+        />
       </View>
 
 
@@ -152,7 +159,7 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
           style={[styles.image, { borderColor: colors.border }]}
         />
       )}
-
+      
       {/* Save Quote Button */}
       <FormButton title="Save Quote" onPress={handleSave} />
     </View>
@@ -178,13 +185,14 @@ const styles = StyleSheet.create({
     position: "relative",
     marginBottom: spacing.md,
   },
+  // This style is now used for the single CameraIcon on both fields
   iconButton: {
     position: "absolute",
     right: spacing.md,
     top: "50%",
     transform: [{ translateY: -11 }],
-    padding: spacing.xs,
   },
+  // Removed: twoIconsContainer and iconButtonCover styles are no longer needed
   quoteInputContainer: {
     position: "relative",
     marginBottom: spacing.md,
@@ -203,9 +211,9 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 16,
-    lineHeight: 20,
+    lineHeight: 22, 
   },
-  placeholderHint: {
+  placeholderHint: { 
     fontSize: 13,
     lineHeight: 18,
     marginTop: 2,

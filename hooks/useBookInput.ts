@@ -2,15 +2,6 @@
  * useBookInput.ts
  * ----------------
  * Custom React hook that encapsulates all logic for the Book Input Form.
- * 
- * Responsibilities:
- * - Manages local state for title, quote, and coverUri.
- * - Handles camera permissions and image capture via expo-image-picker.
- * - Validates user input before saving.
- * - Calls the external onSave callback provided by the parent.
- * 
- * This separation keeps BookInputForm.tsx purely presentational,
- * improves testability, and follows the principle of separation of concerns.
  */
 
 import * as FileSystem from "expo-file-system/legacy";
@@ -25,8 +16,10 @@ export const useBookInput = (
   const [quote, setQuote] = useState("");
   const [coverUri, setCoverUri] = useState<string | null>(null);
 
-  // NEW: Added spinner state for OCR loading indicator
   const [isOcrLoading, setIsOcrLoading] = useState(false);
+  const [isTitleOcrLoading, setIsTitleOcrLoading] = useState(false);
+
+  // ... (handlePickCover and handleSave functions remain unchanged)
 
   const handlePickCover = useCallback(async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -41,32 +34,32 @@ export const useBookInput = (
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [3, 4],
-      quality: 0.7,
+      quality: 0.7, 
     });
 
-    if (!result.canceled) setCoverUri(result.assets[0].uri);
+    if (result.canceled || !result.assets?.[0]?.uri) return;
+    setCoverUri(result.assets[0].uri);
   }, []);
 
   const handleSave = useCallback(() => {
-    const t = title.trim();
-    const q = quote.trim();
-    if (!t || !q) {
-      Alert.alert("Missing Information", "Please fill in both fields.");
+    if (!title.trim() || !quote.trim()) {
+      Alert.alert("Missing Fields", "Please enter both a title/author and a quote.");
       return;
     }
 
-    onSave(t, q, coverUri ?? undefined);
+    onSave(title, quote, coverUri ?? undefined);
     setTitle("");
     setQuote("");
     setCoverUri(null);
   }, [title, quote, coverUri, onSave]);
-  
-  const OCR_FUNCTION_URL =
-  "https://us-central1-capstone-475218.cloudfunctions.net/ocrHandler";
 
-  async function handleOcrFromImage() {
+  const OCR_FUNCTION_URL =
+    "https://us-central1-capstone-475218.cloudfunctions.net/ocrHandler";
+
+  // OCR HANDLER: For Book Title / Author (uses data.quoteText and now takes the FULL text)
+  async function handleOcrFromTitleImage() {
     try {
-      setIsOcrLoading(true); // NEW: start spinner
+      setIsTitleOcrLoading(true); 
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
       if (status !== "granted") {
@@ -94,8 +87,57 @@ export const useBookInput = (
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const data = await response.json();
-      if (data.quoteText) {
-        setQuote((prev: string) => prev + data.quoteText);
+      
+      // FIX: Removed .split('\n')[0] to allow full text capture for title input
+      if (data.quoteText) { 
+        setTitle((prev: string) => prev + data.quoteText); // NO TRUNCATION HERE
+      } else {
+        Alert.alert("No text detected", "Try cropping closer to the text.");
+      }
+    } catch (err) {
+      console.error("Title OCR Error:", err); 
+      Alert.alert("Error", "OCR processing failed for title.");
+    } finally {
+      setIsTitleOcrLoading(false); 
+    }
+  }
+
+
+  // OCR HANDLER: For Quote (uses data.quoteText and takes the FULL text)
+  async function handleOcrFromImage() {
+    try {
+      setIsOcrLoading(true); 
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+      if (status !== "granted") {
+        Alert.alert("Permission required", "Photo library access is needed.");
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        quality: 1.0,
+        aspect: [3, 4],
+      });
+      
+      if (result.canceled || !result.assets?.[0]?.uri) return;
+      const uri = result.assets[0].uri;
+
+      const base64 = await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
+
+      const response = await fetch(OCR_FUNCTION_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64 }),
+      });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data = await response.json();
+      
+      // Intentional logic: Use data.quoteText and append the FULL text to the quote field.
+      if (data.quoteText) { 
+        setQuote((prev: string) => prev + data.quoteText); 
       } else {
         Alert.alert("No text detected", "Try cropping closer to the text.");
       }
@@ -103,7 +145,7 @@ export const useBookInput = (
       console.error("OCR Error:", err);
       Alert.alert("Error", "OCR processing failed. See console for details.");
     } finally {
-      setIsOcrLoading(false); // NEW: stop spinner
+      setIsOcrLoading(false); 
     }
   }
 
@@ -116,6 +158,8 @@ export const useBookInput = (
     handlePickCover,
     handleSave,
     handleOcrFromImage,
-    isOcrLoading, // NEW: return spinner state
+    isOcrLoading, 
+    handleOcrFromTitleImage, 
+    isTitleOcrLoading,       
   };
 };

@@ -12,6 +12,7 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import {
+  ActivityIndicator,
   Image,
   Platform,
   Pressable,
@@ -65,6 +66,7 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
     handlePickCover,
     handleSave,
     handleOcrFromImage,
+    isOcrLoading, // NEW: added from useBookInput
   } = useBookInput(onSave);
   
 
@@ -124,17 +126,22 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
         {!quote && <QuotePlaceholder />}
 
         {/* OCR Camera icon (same look as title field) */}
-        <Pressable
-          onPress={handleOcrFromImage} // will connect in Step 3B
-          accessibilityLabel="Scan quote from image"
-          style={styles.iconButton}
-        >
-          <Feather
-            name="camera"
-            size={22}
-            color={colors.secondaryText}
-          />
-        </Pressable>
+        <View style={styles.iconButton}>
+          {isOcrLoading ? ( // NEW: show spinner when OCR is fetching
+            <ActivityIndicator size="small" color={colors.secondaryText} />
+          ) : (
+            <Pressable
+              onPress={handleOcrFromImage}
+              accessibilityLabel="Scan quote from image"
+            >
+              <Feather
+                name="camera"
+                size={22}
+                color={colors.secondaryText}
+              />
+            </Pressable>
+          )}
+        </View>
       </View>
 
 

@@ -63,18 +63,19 @@ export const useBookInput = (
 
 async function handleOcrFromImage() {
   try {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
     if (status !== "granted") {
       Alert.alert("Permission required", "Photo library access is needed.");
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 1.0,
-      mediaTypes: "images",
+      aspect: [3, 4],
     });
-
+    
     if (result.canceled || !result.assets?.[0]?.uri) return;
     const uri = result.assets[0].uri;
 

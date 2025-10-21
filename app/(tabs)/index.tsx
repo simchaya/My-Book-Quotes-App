@@ -1,20 +1,20 @@
 // app/(tabs)/index.tsx
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TouchableOpacity,
   Text,
+  TouchableOpacity,
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SwipeListView } from "react-native-swipe-list-view";
-import { Ionicons } from "@expo/vector-icons";
 
+import { useAuth } from "@/context/AuthContext";
 import { useBookQuotes } from "@/hooks/useBookQuotes";
 import { spacing, useThemeColors } from "@/utils";
-import { useAuth } from "@/context/AuthContext";
 
 import BookInputForm from "@/components/BookInputForm";
 import BookListItem from "@/components/BookListItem";

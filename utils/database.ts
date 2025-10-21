@@ -14,6 +14,7 @@ export const initDatabase = async () => {
 
     CREATE TABLE IF NOT EXISTS books (
       id TEXT PRIMARY KEY NOT NULL,
+      userId TEXT NOT NULL,
       title TEXT NOT NULL,
       coverUri TEXT
     );
@@ -24,6 +25,9 @@ export const initDatabase = async () => {
       text TEXT NOT NULL,
       FOREIGN KEY (bookId) REFERENCES books(id) ON DELETE CASCADE
     );
+
+    -- Create index for faster userId lookups
+    CREATE INDEX IF NOT EXISTS idx_books_userId ON books(userId);
   `);
 };
 
@@ -32,10 +36,10 @@ export const initDatabase = async () => {
 // ----------------------
 
 // --- Insert ---
-export const insertBook = async (id: string, title: string, coverUri?: string) => {
+export const insertBook = async (id: string, userId: string, title: string, coverUri?: string) => {
     await db.runAsync(
-        "INSERT OR IGNORE INTO books (id, title, coverUri) VALUES (?, ?, ?)",
-        [id, title.trim(), coverUri ?? null]
+        "INSERT OR IGNORE INTO books (id, userId, title, coverUri) VALUES (?, ?, ?, ?)",
+        [id, userId, title.trim(), coverUri ?? null]
     );
 };
 
@@ -47,8 +51,9 @@ export const insertQuote = async (id: string, bookId: string, text: string) => {
 };
 
 // --- Delete ---
-export const deleteBook = async (bookId: string) => {
-    await db.runAsync("DELETE FROM books WHERE id = ?", [bookId]);
+export const deleteBook = async (bookId: string, userId: string) => {
+    // Safety: only delete if book belongs to this user
+    await db.runAsync("DELETE FROM books WHERE id = ? AND userId = ?", [bookId, userId]);
 };
 
 export const deleteQuote = async (quoteId: string) => {
@@ -60,13 +65,14 @@ export const updateQuote = async (quoteId: string, newText: string) => {
     await db.runAsync("UPDATE quotes SET text = ? WHERE id = ?", [newText.trim(), quoteId]);
 };
 
-
-// NEW: Update a book's title
-export const updateBookTitle = async (bookId: string, newTitle: string) => {
-    await db.runAsync("UPDATE books SET title = ? WHERE id = ?", [newTitle.trim(), bookId]);
+// Update a book's title
+export const updateBookTitle = async (bookId: string, userId: string, newTitle: string) => {
+    // Safety: only update if book belongs to this user
+    await db.runAsync(
+        "UPDATE books SET title = ? WHERE id = ? AND userId = ?",
+        [newTitle.trim(), bookId, userId]
+    );
 };
-
-
 
 // ----------------------
 // Optimized Data Fetch
@@ -75,6 +81,7 @@ export const updateBookTitle = async (bookId: string, newTitle: string) => {
 // Flattened type for JOIN results
 type BookQuoteRow = {
     id: string;
+    userId: string;
     title: string;
     coverUri?: string | null;
     quote_id?: string | null;
@@ -82,21 +89,23 @@ type BookQuoteRow = {
 };
 
 /**
- * Optimized: Single LEFT JOIN query instead of N+1.
- * Returns an array of books, each with its quotes[] attached.
+ * Optimized: Single LEFT JOIN query filtered by userId.
+ * Returns an array of books for the specific user, each with its quotes[] attached.
  */
-export const getBooksWithQuotes = async (): Promise<Book[]> => {
+export const getBooksWithQuotes = async (userId: string): Promise<Book[]> => {
     const rows: BookQuoteRow[] = await db.getAllAsync(`
     SELECT
       b.id,
+      b.userId,
       b.title,
       b.coverUri,
       q.id   AS quote_id,
       q.text AS quote_text
     FROM books b
     LEFT JOIN quotes q ON b.id = q.bookId
+    WHERE b.userId = ?
     ORDER BY LOWER(b.title) ASC, q.id ASC;
-  `);
+  `, [userId]);
 
     const booksMap = new Map<string, Book>();
 
@@ -121,4 +130,30 @@ export const getBooksWithQuotes = async (): Promise<Book[]> => {
 
     // Return all books in sorted order
     return Array.from(booksMap.values());
+};
+
+// ----------------------
+// Database Reset (For Development)
+// ----------------------
+
+/**
+ * Completely drops and recreates all tables.
+ * Use this to fix "no such column" errors.
+ */
+export const resetDatabase = async () => {
+    try {
+        console.log('🗑️ Dropping all tables...');
+        await db.execAsync(`
+            DROP TABLE IF EXISTS quotes;
+            DROP TABLE IF EXISTS books;
+        `);
+        console.log('✅ Tables dropped');
+        
+        // Recreate with new schema
+        await initDatabase();
+        console.log('✅ Database reset complete with userId support');
+    } catch (error) {
+        console.error('Reset error:', error);
+        throw error;
+    }
 };

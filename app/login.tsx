@@ -9,11 +9,12 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
 
 export default function LoginScreen() {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -37,6 +38,23 @@ export default function LoginScreen() {
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email address');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await resetPassword(email);
+      Alert.alert('Success', 'Password reset email sent! Check your inbox.');
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to send reset email');
     } finally {
       setLoading(false);
     }
@@ -87,6 +105,12 @@ export default function LoginScreen() {
             </Text>
           )}
         </TouchableOpacity>
+
+        {!isSignUp && (
+          <TouchableOpacity onPress={handleForgotPassword} disabled={loading}>
+            <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           onPress={() => {
@@ -151,6 +175,12 @@ const styles = StyleSheet.create({
     color: 'red',
     marginBottom: 12,
     textAlign: 'center',
+  },
+  forgotPassword: {
+    color: '#007AFF',
+    textAlign: 'center',
+    marginTop: 12,
+    fontSize: 14,
   },
   switchText: {
     color: '#007AFF',

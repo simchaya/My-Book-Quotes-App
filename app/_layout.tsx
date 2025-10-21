@@ -8,11 +8,19 @@ import { useColorScheme } from "react-native";
 import "react-native-reanimated";
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { initDatabase } from "@/utils/database";
 
 function RootLayoutNav() {
   const { user, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+
+  // Initialize database on app start
+  useEffect(() => {
+    initDatabase()
+      .then(() => console.log('✅ Database initialized'))
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;

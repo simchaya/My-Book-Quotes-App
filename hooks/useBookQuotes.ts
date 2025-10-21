@@ -12,12 +12,18 @@ import {
   updateQuote,
 } from "@/utils/database";
 
+import { useAuth } from "@/context/AuthContext";
+
 // Types
 export type Quote = { id: string; text: string };
 export type Book = { id: string; title: string; quotes: Quote[]; coverUri?: string };
 
 export const useBookQuotes = () => {
   const [books, setBooks] = useState<Book[]>([]);
+  const { user } = useAuth();
+
+  // Get userId or use 'anonymous' as fallback
+  const userId = user?.uid || 'anonymous';
 
   // -----------------------------
   // INITIAL LOAD
@@ -27,13 +33,13 @@ export const useBookQuotes = () => {
       // 1. Initialize DB (ensures tables exist)
       await initDatabase();
 
-      // 2. Load all current data from SQLite and set state
-      const sqlBooks = await getBooksWithQuotes();
+      // 2. Load data for current user from SQLite
+      const sqlBooks = await getBooksWithQuotes(userId);
       setBooks(sqlBooks);
     };
 
     loadBooks().catch(console.error);
-  }, []);
+  }, [userId]); // Reload when user changes
 
   // -----------------------------
   // CRUD OPERATIONS
@@ -50,40 +56,40 @@ export const useBookQuotes = () => {
       await insertQuote(quoteId, existing.id, quote);
     } else {
       const bookId = generateId();
-      await insertBook(bookId, title, coverUri);
+      await insertBook(bookId, userId, title, coverUri);
       await insertQuote(quoteId, bookId, quote);
     }
 
     // Refresh local state after all writes are complete
-    const updated = await getBooksWithQuotes();
+    const updated = await getBooksWithQuotes(userId);
     setBooks(updated);
 
-  }, [books]);
+  }, [books, userId]);
 
   const removeBookById = useCallback(async (bookId: string) => {
-    await deleteBook(bookId);
-    const updated = await getBooksWithQuotes();
+    await deleteBook(bookId, userId);
+    const updated = await getBooksWithQuotes(userId);
     setBooks(updated);
 
-  }, []);
+  }, [userId]);
 
   const removeQuoteById = useCallback(async (quoteId: string) => {
     await deleteQuote(quoteId);
-    const updated = await getBooksWithQuotes();
+    const updated = await getBooksWithQuotes(userId);
     setBooks(updated);
-  }, []);
+  }, [userId]);
 
   const editQuote = useCallback(async (quoteId: string, newText: string) => {
     await updateQuote(quoteId, newText);
-    const updated = await getBooksWithQuotes();
+    const updated = await getBooksWithQuotes(userId);
     setBooks(updated);
-  }, []);
+  }, [userId]);
 
   const editBookTitle = useCallback(async (bookId: string, newTitle: string) => {
-    await updateBookTitle(bookId, newTitle);
-    const updated = await getBooksWithQuotes();
+    await updateBookTitle(bookId, userId, newTitle);
+    const updated = await getBooksWithQuotes(userId);
     setBooks(updated);
-  }, []);
+  }, [userId]);
 
   return {
     books,

@@ -2,7 +2,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  KeyboardAvoidingView,
+  KeyboardAvoidingView, // <-- This import is now unused for wrapping
   Platform,
   StyleSheet,
   Text,
@@ -45,39 +45,37 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <KeyboardAvoidingView
-        style={[styles.keyboardContainer]}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <SwipeListView
-          data={books}
-          keyExtractor={(book) => book.id}
-          ListHeaderComponent={<BookInputForm onSave={addQuoteToBook} />} 
-          renderItem={({ item }) =>
-            (
-              <BookListItem 
-                book={item} 
-                onDeleteQuote={removeQuoteById} 
-                onUpdateTitle={editBookTitle} 
-                onUpdateQuote={editQuote} 
-              />
-            )}
-            
-          renderHiddenItem={({ item }) => (
-            <SwipeDeleteButton onPress={() => removeBookById (item.id)} />
+      {/* FIX: Removed KeyboardAvoidingView wrapper */}
+      <SwipeListView
+        data={books}
+        keyExtractor={(book) => book.id}
+        ListHeaderComponent={<BookInputForm onSave={addQuoteToBook} />} 
+        renderItem={({ item }) =>
+          (
+            <BookListItem 
+              book={item} 
+              onDeleteQuote={removeQuoteById} 
+              onUpdateTitle={editBookTitle} 
+              onUpdateQuote={editQuote} 
+            />
           )}
-          rightOpenValue={-75}
-          contentContainerStyle={{ paddingBottom: spacing.lg }}
-          keyboardShouldPersistTaps="handled"
-        />
-      </KeyboardAvoidingView>
+          
+        renderHiddenItem={({ item }) => (
+          <SwipeDeleteButton onPress={() => removeBookById (item.id)} />
+        )}
+        rightOpenValue={-75}
+        contentContainerStyle={{ paddingBottom: spacing.lg }}
+        keyboardShouldPersistTaps="handled"
+        // FIX: Tell the list to adjust its content inset when the keyboard is active (iOS fix)
+        automaticallyAdjustKeyboardInsets={true} 
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md },
-  keyboardContainer: { flex: 1 },
+  // FIX: Removed keyboardContainer: { flex: 1 }
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

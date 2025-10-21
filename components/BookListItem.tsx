@@ -1,11 +1,8 @@
-// components/BookListItem.tsx
+import { Book, Quote } from "@/hooks/useBookQuotes";
+import { spacing, typography, useThemeColors } from "@/utils";
+import React from "react";
+import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Book, Quote } from '@/hooks/useBookQuotes'; // Refactor // NEW: Adjusted import path
-import { spacing, typography, useThemeColors } from "@/utils"; // Refactor // NEW: Adjusted import path
-import React from 'react';
-import { View, Text, Image, StyleSheet, Pressable, Alert } from 'react-native'; // Refactor // NEW: Added StyleSheet
-
-// Refactor // NEW: Prop interface for typing
 interface BookListItemProps {
   book: Book;
   onDeleteQuote: (quoteId: string) => void;
@@ -13,28 +10,21 @@ interface BookListItemProps {
   onUpdateQuote: (quoteId: string, newText: string) => void;
 }
 
-// Refactor // NEW: Component definition
-// Component for displaying one book + its quotes + optional cover photo
-
 const BookListItem = ({
   book,
   onDeleteQuote,
   onUpdateTitle,
-  onUpdateQuote
+  onUpdateQuote,
 }: BookListItemProps) => {
-
   const colors = useThemeColors();
 
-  // ------------------------------------
-  // 1. UPDATE LOGIC (Edit Title)
-  // ------------------------------------
   const handleEditTitle = () => {
     Alert.prompt(
       "Edit Book Title",
       "Enter the new title:",
       (newTitle) => {
         if (newTitle && newTitle.trim().length > 0) {
-          onUpdateTitle(book.id, newTitle.trim()); // Call the prop function
+          onUpdateTitle(book.id, newTitle.trim());
         }
       },
       "plain-text",
@@ -42,16 +32,13 @@ const BookListItem = ({
     );
   };
 
-  // ------------------------------------
-  // 2. UPDATE LOGIC (Edit Quote)
-  // ------------------------------------
   const handleEditQuote = (quote: Quote) => {
     Alert.prompt(
       "Edit Quote",
       "Enter the new quote text:",
       (newText) => {
         if (newText && newText.trim().length > 0) {
-          onUpdateQuote(quote.id, newText.trim()); // Call the prop function
+          onUpdateQuote(quote.id, newText.trim());
         }
       },
       "plain-text",
@@ -59,48 +46,44 @@ const BookListItem = ({
     );
   };
 
-  // ------------------------------------
-  // 3. DELETE LOGIC (Delete Quote)
-  // ------------------------------------
   const handleDeleteQuote = (quote: Quote) => {
     Alert.alert(
       "Confirm Deletion",
-      `Are you sure you want to delete the quote: "${quote.text.substring(0, 30)}..."?`,
+      `Are you sure you want to delete the quote: "${quote.text.substring(
+        0,
+        30
+      )}..."?`,
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => onDeleteQuote(quote.id) // Call the prop function
-        }
+          onPress: () => onDeleteQuote(quote.id),
+        },
       ]
     );
   };
 
-
   return (
-    <View style={[styles.bookItem, { backgroundColor: colors.card }]}>
-      {/* UI: Make Title Pressable for Editing */}
+    <View style={[styles.bookItem, { backgroundColor: colors.card || "#fff" }]}>
       <Pressable onPress={handleEditTitle}>
         <Text style={[typography.title2, { color: colors.text }]}>
           {book.title}
         </Text>
       </Pressable>
 
-      {/* Show cover if saved */}
       {book.coverUri && (
         <Image
           source={{ uri: book.coverUri }}
           style={styles.coverImage}
-          resizeMode="cover"
+          resizeMode="contain"
         />
       )}
 
-      {book.quotes.map((q, index) => (
-        // UI: Container for quote text and delete button
+      {book.quotes.map((q) => (
         <View key={q.id} style={styles.quoteRow}>
-          {/* UI: Make Quote Text Pressable for Editing */}
-          <Pressable style={styles.quoteTextContainer}
+          <Pressable
+            style={styles.quoteTextContainer}
             onPress={() => handleEditQuote(q)}
           >
             <Text
@@ -113,7 +96,6 @@ const BookListItem = ({
               “{q.text}”
             </Text>
           </Pressable>
-          {/* UI: Delete Quote Button */}
           <Pressable
             onPress={() => handleDeleteQuote(q)}
             style={styles.deleteButton}
@@ -126,35 +108,29 @@ const BookListItem = ({
   );
 };
 
-// Refactor // NEW: Dedicated StyleSheet block
 const styles = StyleSheet.create({
-  // Refactor // MOVED: Original bookItem style from App/index.tsx
   bookItem: {
+    flex: 1, // let parent control layout
     marginBottom: spacing.lg,
     padding: spacing.md,
     borderRadius: 12,
   },
-  // Refactor // MOVED & CHANGED: Extracted Image styles from inline JSX
   coverImage: {
     width: "100%",
-    height: 150,
+    height: 180,
     borderRadius: 8,
     marginTop: spacing.sm,
     marginBottom: spacing.sm,
   },
-  // Refactor // NEW: Style key for quotes
-  quoteText: {
-    fontStyle: "italic"
-  },
-    // NEW: Styles for the quote row and delete button
-    quoteRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start', // Align quote text to the top
-    justifyContent: 'space-between',
+  quoteText: { fontStyle: "italic" },
+  quoteRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
     marginTop: spacing.sm,
   },
   quoteTextContainer: {
-    flex: 1, // Allows text to take up most of the space
+    flex: 1,
     paddingRight: spacing.sm,
   },
   deleteButton: {
@@ -162,10 +138,10 @@ const styles = StyleSheet.create({
     paddingLeft: spacing.md,
   },
   deleteText: {
-    color: 'red',
-    fontWeight: 'bold',
+    color: "red",
+    fontWeight: "bold",
     fontSize: 18,
-  }
+  },
 });
 
 export default BookListItem;

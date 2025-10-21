@@ -4,9 +4,10 @@
  * Custom React hook that encapsulates all logic for the Book Input Form.
  */
 
+import { fetchBookCover } from "@/utils/fetchBookCover"; // NEW: Helper for automatic cover fetching
 import * as FileSystem from "expo-file-system/legacy";
 import * as ImagePicker from "expo-image-picker";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Alert } from "react-native";
 
 export const useBookInput = (
@@ -19,8 +20,29 @@ export const useBookInput = (
   const [isOcrLoading, setIsOcrLoading] = useState(false);
   const [isTitleOcrLoading, setIsTitleOcrLoading] = useState(false);
 
-  // ... (handlePickCover and handleSave functions remain unchanged)
+  // ------------------------------------------
+  // NEW: Auto-fetch book cover when title changes
+  // ------------------------------------------
+  useEffect(() => {
+    if (!title) return;
 
+    const delay = setTimeout(async () => {
+      try {
+        const fetchedCover = await fetchBookCover(title);
+        if (fetchedCover && fetchedCover !== coverUri) {
+          setCoverUri(fetchedCover);
+        }
+      } catch (err) {
+        console.warn("Auto-cover fetch failed:", err);
+      }
+    }, 800); // debounce delay
+
+    return () => clearTimeout(delay);
+  }, [title]);
+
+  // ------------------------------------------
+  // Handle manual photo capture (still available)
+  // ------------------------------------------
   const handlePickCover = useCallback(async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
@@ -34,13 +56,16 @@ export const useBookInput = (
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [3, 4],
-      quality: 0.7, 
+      quality: 0.7,
     });
 
     if (result.canceled || !result.assets?.[0]?.uri) return;
     setCoverUri(result.assets[0].uri);
   }, []);
 
+  // ------------------------------------------
+  // Handle save logic
+  // ------------------------------------------
   const handleSave = useCallback(() => {
     if (!title.trim() || !quote.trim()) {
       Alert.alert("Missing Fields", "Please enter both a title/author and a quote.");
@@ -53,13 +78,16 @@ export const useBookInput = (
     setCoverUri(null);
   }, [title, quote, coverUri, onSave]);
 
+  // ------------------------------------------
+  // OCR Logic (Cloud Function integration)
+  // ------------------------------------------
   const OCR_FUNCTION_URL =
     "https://us-central1-capstone-475218.cloudfunctions.net/ocrHandler";
 
-  // OCR HANDLER: For Book Title / Author (uses data.quoteText and now takes the FULL text)
+  // OCR for Book Title / Author
   async function handleOcrFromTitleImage() {
     try {
-      setIsTitleOcrLoading(true); 
+      setIsTitleOcrLoading(true);
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
       if (status !== "granted") {
@@ -72,7 +100,7 @@ export const useBookInput = (
         quality: 1.0,
         aspect: [3, 4],
       });
-      
+
       if (result.canceled || !result.assets?.[0]?.uri) return;
       const uri = result.assets[0].uri;
 
@@ -87,26 +115,24 @@ export const useBookInput = (
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const data = await response.json();
-      
-      // FIX: Removed .split('\n')[0] to allow full text capture for title input
-      if (data.quoteText) { 
-        setTitle((prev: string) => prev + data.quoteText); // NO TRUNCATION HERE
+
+      if (data.quoteText) {
+        setTitle((prev: string) => prev + data.quoteText);
       } else {
         Alert.alert("No text detected", "Try cropping closer to the text.");
       }
     } catch (err) {
-      console.error("Title OCR Error:", err); 
+      console.error("Title OCR Error:", err);
       Alert.alert("Error", "OCR processing failed for title.");
     } finally {
-      setIsTitleOcrLoading(false); 
+      setIsTitleOcrLoading(false);
     }
   }
 
-
-  // OCR HANDLER: For Quote (uses data.quoteText and takes the FULL text)
+  // OCR for Quote Text
   async function handleOcrFromImage() {
     try {
-      setIsOcrLoading(true); 
+      setIsOcrLoading(true);
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
       if (status !== "granted") {
@@ -119,7 +145,7 @@ export const useBookInput = (
         quality: 1.0,
         aspect: [3, 4],
       });
-      
+
       if (result.canceled || !result.assets?.[0]?.uri) return;
       const uri = result.assets[0].uri;
 
@@ -134,10 +160,9 @@ export const useBookInput = (
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const data = await response.json();
-      
-      // Intentional logic: Use data.quoteText and append the FULL text to the quote field.
-      if (data.quoteText) { 
-        setQuote((prev: string) => prev + data.quoteText); 
+
+      if (data.quoteText) {
+        setQuote((prev: string) => prev + data.quoteText);
       } else {
         Alert.alert("No text detected", "Try cropping closer to the text.");
       }
@@ -145,10 +170,13 @@ export const useBookInput = (
       console.error("OCR Error:", err);
       Alert.alert("Error", "OCR processing failed. See console for details.");
     } finally {
-      setIsOcrLoading(false); 
+      setIsOcrLoading(false);
     }
   }
 
+  // ------------------------------------------
+  // Return hook API
+  // ------------------------------------------
   return {
     title,
     setTitle,
@@ -158,8 +186,8 @@ export const useBookInput = (
     handlePickCover,
     handleSave,
     handleOcrFromImage,
-    isOcrLoading, 
-    handleOcrFromTitleImage, 
-    isTitleOcrLoading,       
+    isOcrLoading,
+    handleOcrFromTitleImage,
+    isTitleOcrLoading,
   };
 };

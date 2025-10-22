@@ -1,161 +1,484 @@
-@/DEV_LOG.md
- 
-# Development Notes
-This document captures the main design decisions and lessons from building the Book Quotes App.
+# Development Log - MarkItDown
 
-## iOS Look & Feel
-- Followed Apple’s HIG for a clean, minimal interface.
-- Centralized typography, spacing, and colors in theme.ts for consistency.
-- Adopted dark/light mode and safe area support.
+This document captures the technical decisions, challenges, and lessons learned while building MarkItDown, a React Native app for capturing and organizing book quotes.
 
-## Persistence & IDs    
-- Added AsyncStorage persistence via useBookQuotes hook.
-- Fixed early bug where quotes vanished after reloading.
-- Introduced uniqueId() helper to avoid duplicate keys.
-- Added migration logic to retroactively assign IDs to old data.
-- Migrated to SQLite instead of AsyncStorage
+---
 
-## Error Handling & Navigation
-- Custom Not Found screen for invalid routes.
-- Fixed layout issues by switching from negative margins → pure Flexbox.
+## 📱 Project Overview
 
-## Tooling & DX
-- ESLint + Prettier for consistent style.
-- TypeScript strictness to prevent type mismatches.
-- Refactored AsyncStorage into storeObject / getObject helpers.
+**Tech Stack:**
+- **Frontend:** React Native + Expo
+- **Database:** SQLite (expo-sqlite)
+- **Camera:** expo-image-picker
+- **OCR:** Google Cloud Vision API
+- **State Management:** Custom React Hooks
+- **Styling:** Custom design system with theme.ts
 
-### Recent Updates
-- Camera integration: take & save book cover photos.
-- Covers now display with books.
-- Full-screen scrolling with ScrollView.
-- KeyboardAvoidingView for iOS input handling.
-- About page updated with clear step-by-step instructions.
-- Swipe-to-delete for books (HIG-aligned interaction)
-- [October 16, 2025] Changed app name to MarkItDown
-- [October 16, 2025] Complete CRUD and UI support: edit/remove books & quotes
-- [October 16, 2025] Migration of persistence from AsyncStorage to SQLite
+**Architecture:**
+- Managed Expo workflow (no native code ejection)
+- Modular hook-based state management
+- Custom utilities for database operations
+- Cloud function integration for OCR processing
 
-### OCR Integration Attempt:
+---
 
-**[October 14, 2025] — Native OCR Exploration and Revert**
+## 🎨 Design Philosophy: iOS Look & Feel
 
-**Goal:** Add an on-device Optical Character Recognition (OCR) feature so users could take a photo of a book page and automatically extract the text into the quote field — keeping the process private **and offline**.
+### Apple Human Interface Guidelines (HIG)
+- Clean, minimal interface with focus on content
+- Swipe-to-delete gestures for iOS-native feel
+- Safe area support for modern iPhone notches
+- Consistent touch targets and spacing
 
-**Implementation Path:**
-- Added the expo-text-recognition library to enable native OCR on iOS.
-- Moved image-handling logic into a new media.ts utility for separation of concerns and modularity.
-- Began full native build setup using expo prebuild and npx expo run:ios, which generated the /ios directory and required configuration of CocoaPods and Xcode.
-- Encountered multiple environment dependencies — including missing CocoaPods installation, unregistered iOS simulator runtimes, and repeated xcodebuild error 70 — while attempting to compile the app for a local iPhone 16 simulator (iOS 18.6).
-- After hours of resolving build-toolchain issues (CocoaPods, Xcode license agreement, and simulator registration), the effort was deemed too complex for a managed Expo workflow.
+### Design System (theme.ts)
+- Centralized typography scale
+- Color palette for light/dark mode
+- 8pt spacing rhythm for visual consistency
+- Semantic color tokens (primary, secondary, text, background)
 
-**Decision & Outcome:**
+### Dark/Light Mode
+- Automatic theme switching based on system preferences
+- Carefully chosen colors for readability in both modes
+- Smooth transitions between themes
 
-- The native OCR implementation was abandoned to preserve the app’s simplicity and the developer sanity ;/.
-- All native code was removed.
-- The app reverted to a clean managed Expo project fully runnable inside Expo Go, with image capture retained only for book-cover photos.
-- Decided to give up the so wanted **offline** OCR feature on the account of leaving the Expo Go environment and try using cloud service integration which will allow keeping the Expo Go environment testing going (second attempt documentation below)
+---
 
-**Reflection:**
-While technically feasible, the native OCR path required leaving the managed Expo environment and maintaining a full Xcode toolchain — a high-cost trade-off for this feature. This decision prioritized stability and maintainability.
+## 💾 Data Persistence Journey
 
-**[October 15, 2025] - Google Cloud Vision OCR Feature Revert & Strategy**
+### Phase 1: AsyncStorage (Initial Implementation)
+- Used AsyncStorage for simple key-value storage
+- Implemented custom `storeObject` / `getObject` helpers
+- Created `useBookQuotes` hook for state management
 
-**Goal**: Trying alternative solution for the same purpose. 
+**Early Bug:** Quotes vanishing after reload
+- **Root Cause:** Books weren't being properly serialized
+- **Fix:** Refactored data structure and storage helpers
 
-**Technical Approach:**
+### Phase 2: Unique ID System
+- Introduced `uniqueId()` helper to generate consistent IDs
+- Prevented duplicate entries and React key warnings
+- Added migration logic to retroactively assign IDs to existing data
 
-1. Used `expo-image-picker` to handle photo capture/selection.
+### Phase 3: SQLite Migration (October 16, 2025)
+**Why migrate?**
+- Better performance for growing datasets
+- Proper relational structure (books → quotes)
+- Support for complex queries and filtering
+- Foundation for future search features
 
-2. Implemented a **Google Cloud Vision OCR** service via a dedicated Cloud Function to perform the text analysis.
+**Migration Process:**
+- Implemented database schema with books and quotes tables
+- Created `database.ts` utility with CRUD operations
+- Added migration script to transfer AsyncStorage data to SQLite
+- Maintained backwards compatibility during transition
 
-3. The frontend component (`BookInputForm.tsx`) was updated to capture the image as a Base64 string and POST it to the Cloud Function, then handle the returned text.
+**Database Schema:**
+```sql
+CREATE TABLE books (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  author TEXT NOT NULL,
+  coverUri TEXT,
+  createdAt INTEGER
+);
 
-**Challenges & Decision to Revert:**
-The feature faced two critical issues stemming from the native platform environment:
+CREATE TABLE quotes (
+  id TEXT PRIMARY KEY,
+  bookId TEXT NOT NULL,
+  text TEXT NOT NULL,
+  note TEXT,
+  createdAt INTEGER,
+  FOREIGN KEY (bookId) REFERENCES books(id) ON DELETE CASCADE
+);
+```
 
-1. **Native Cropping Failure:** The `expo-image-picker`'s built-in cropping feature, necessary for isolating a single line of text, was unreliable and often forced a **1.00 (square)** aspect ratio, even when explicitly requesting a 16:3 wide ratio. This made the OCR unreliable as it received too much context.
+---
 
-2. **Platform Feature Superiority:** It was recognized that modern smartphone operating systems (specifically Apple's **Live Text** feature) already provide superior, high-performance, and precise text recognition directly in the camera or photo gallery. This native feature is a better, faster, and more reliable user experience than any custom OCR solution built into the application shell.
+## 📸 Camera Integration
 
-**Outcome & Final Decision:**
-The dedicated OCR functionality was **removed** from the core application. The final user experience relies on the user performing the text recognition using their **native phone features (like Live Text)** and then pasting the copied quote manually into the clean, simplified text box.
+### Book Cover Photos
+- Used `expo-image-picker` for camera access
+- Permission handling for iOS camera and photo library
+- Image URI storage in SQLite
+- Optimized image display with proper aspect ratios
 
-**Git Management:**
-The entire functional OCR implementation (including `BookInputForm.tsx`, `cloud-function/package.json`, and `cloud-function/vision-ocr-function.js`) was isolated and preserved on a separate feature branch (`feature/cloud-ocr`). The clean, simplified version of the input form was retained on the `main` branch, ensuring a stable and efficient core application.
+### Technical Challenges:
+1. **Permission Flow:** Handling denied permissions gracefully
+2. **Image Quality:** Balancing quality vs storage size
+3. **URI Management:** Persisting and loading image URIs correctly
 
-## [October 17, 2025] Development Log Update — Reintegrating OCR Feature
+---
 
-### Process Overview
+## 🔍 OCR Implementation Journey
 
-#### 1. Restoring Cloud Function
+### Attempt 1: Native OCR (October 14, 2025) ❌
 
-* **Folder added:** `/cloud-function/`
-* **Files restored:** `vision-ocr-function.js` and `package.json`
-* **Purpose:** The function handles HTTP `POST` requests with a base64-encoded image and returns extracted text from Google Cloud Vision API.
-* **Deployment note:** The `.gcloudignore` file was recreated to include only the `cloud-function` directory during deployment (excluding app files and node modules).
+**Goal:** On-device OCR for privacy and offline functionality
 
-#### 2. Integrating OCR Trigger in App
+**Approach:**
+- Added `expo-text-recognition` library
+- Created `media.ts` utility for image handling
+- Attempted full native build with `expo prebuild`
 
-* **File affected:** `BookInputForm.tsx`
-* Added a camera icon beside the *Quote* text box to trigger OCR.
-* Introduced a new handler `handleOcrFromImage()` to initiate the OCR workflow.
+**Challenges:**
+- Required leaving managed Expo workflow
+- CocoaPods installation issues
+- Xcode simulator registration errors
+- `xcodebuild error 70` repeatedly
+- Complex native environment dependencies
 
-#### 3. OCR Workflow Implementation
+**Decision:** Abandoned native OCR
+- Too complex for managed Expo workflow
+- Developer experience suffered significantly
+- Maintenance burden too high
+- Prioritized app stability over this feature
 
-* **Location:** `useBookInput.ts` (custom hook)
-* Implemented `handleOcrFromImage()`:
+**Reflection:** Sometimes the "right" technical solution isn't worth the complexity cost. Staying in managed Expo preserved velocity and simplicity.
 
-  1. Requests camera permissions.
-  2. Opens the camera for a new photo capture.
-  3. Converts the image to base64 using `expo-file-system`.
-  4. Sends the base64 string to the deployed Google Cloud Function endpoint.
-  5. Updates the `quote` state with recognized text from the response.
+---
 
-#### 4. Error Handling & Debugging
+### Attempt 2: Cloud OCR with Crop Feature (October 15, 2025) ❌
 
-* Added console logs for each step (permission, capture, encoding, API response).
-* Handled network and permission errors with user alerts.
-* Adjusted deprecated methods in `expo-image-picker` and `expo-file-system`.
+**Goal:** Cloud-based OCR as a simpler alternative
 
-#### 5. UX Enhancements
+**Approach:**
+- Implemented Google Cloud Vision API via Cloud Function
+- Used `expo-image-picker` with built-in cropping
+- Base64 image encoding for API transmission
 
-* Removed the hint text (“Use Live Text…” or “Use Google Lens…”) to simplify UI.
-* Camera icon reused from the title field to maintain visual consistency.
-* Placeholder restored to a clean one-line style (“Enter your quote”).
+**Critical Issues:**
 
-#### 6. Testing & Verification
+1. **Native Cropping Failure:**
+   - `expo-image-picker`'s crop feature unreliable
+   - Forced 1:1 aspect ratio despite requesting 16:3
+   - Couldn't isolate single lines of text effectively
 
-* Tested image capture on Expo Go (iOS) and confirmed Cloud Function response.
-* Verified successful text extraction with clear printed book quotes.
-* Logged OCR processing states to console for debugging.
+2. **Platform Feature Recognition:**
+   - Realized iOS Live Text already provides superior OCR
+   - Native features are faster, more accurate, and better UX
+   - Building custom OCR became redundant
 
-### Next Steps (beyond Capstone submission)
+**Decision:** Removed dedicated OCR, recommended Live Text
+- Simplified UI to basic text input
+- Added hint to use native phone features
+- Preserved code on `feature/cloud-ocr` branch
 
-* Add OCR for the book cover for book name and authur recognition
-* Add a loading indicator during OCR processing for better feedback.
-* Explore offline fallback using `expo-vision-camera` and local OCR models. integrate LiveText/GoogleLens once ExpoGo add support to the SDK or once the app is in Apple development base using Swift
-* Secure Cloud Function endpoint with Firebase Authentication or API key restrictions.
+**Git Strategy:** Feature branch isolation allowed clean main branch while preserving working implementation for future reference.
 
-### Summary
+---
 
-The OCR feature has been successfully reintegrated into the new modular architecture of the app. The workflow now uses Expo APIs for permissions, camera access, and file handling, connecting seamlessly with the existing Google Cloud Function for text recognition. The user can now capture a book quote photo directly in the app and automatically extract and populate the quote text field.
+### Attempt 3: Simplified Cloud OCR (October 17, 2025) ✅
 
----------------------
+**Goal:** Reintegrate OCR without cropping complexity
 
-## Future-Plan
-- OCR to convert photo → text quotes. [(October 16, 2025): plan to drop, see "OCR Integration Attempt" section above]
-- Search, filters, and card-style browsing.
-- Internationalization (i18n) for multilingual quotes.
-- [October 16, 2025] add quotes to existing book from the book card itself
-- [October 16, 2025] add a personal note to a quote
-- [October 16, 2025] discover quotes feature
-- [October 16, 2025] highlight part of a quote
-- [October 16, 2025] refer to LiveText camera for copying quotes
-- [October 16, 2025] secure log in using Google
-- [October 16, 2025] arrange cards in a slidable way or open in new pages
-- [October 16, 2025] advance about page and add a demo video of usage
+**Implementation:**
 
-## Reflections
-This project balances MVP simplicity with a foundation for future expansion - small design choices like unique IDs, AsyncStorage helpers, and theming lay the groundwork for scaling without overcomplicating.
+#### Cloud Function Setup
+- Created `/cloud-function/` directory
+- Deployed `vision-ocr-function.js` to Google Cloud Functions
+- Handles POST requests with base64 images
+- Returns extracted text via JSON response
+- Added `.gcloudignore` for deployment optimization
 
+#### App Integration
+**File: `useBookInput.ts`**
+- Created `handleOcrFromImage()` method
+- Workflow:
+  1. Request camera permissions
+  2. Launch camera via `expo-image-picker`
+  3. Convert image to base64 using `expo-file-system`
+  4. POST to Cloud Function endpoint
+  5. Parse response and populate quote field
 
+**File: `BookInputForm.tsx`**
+- Added camera icon next to quote input
+- Visual consistency with book cover camera icon
+- Clean, minimal UI without hint text
+
+#### Error Handling
+- Console logging at each workflow step
+- User alerts for permission denials
+- Network error handling with fallback
+- Deprecated API method updates
+
+#### Testing
+- Verified on physical iPhone via Expo Go
+- Tested with printed book quotes
+- Confirmed text extraction accuracy
+- Performance acceptable for user experience
+
+**Success Factors:**
+- Removed cropping requirement (accept full image)
+- Cloud Function handles text extraction complexity
+- Stayed within managed Expo workflow
+- Simple, reliable user flow
+
+---
+
+## 🏗️ Architecture & Code Organization
+
+### Project Structure
+```
+app/
+├── (tabs)/
+│   ├── index.tsx        # Home screen (books + quotes list)
+│   ├── about.tsx        # About/info screen
+│   └── +not-found.tsx   # 404 fallback route
+├── _layout.tsx          # Root navigation setup
+
+hooks/
+├── useBookQuotes.ts     # Main state management hook
+└── useBookInput.ts      # Input form logic & OCR
+
+utils/
+├── database.ts          # SQLite CRUD operations
+├── theme.ts             # Design system (colors, typography, spacing)
+└── id.ts                # Unique ID generation
+
+cloud-function/          # Google Cloud Function for OCR
+├── vision-ocr-function.js
+├── package.json
+└── .gcloudignore
+```
+
+### Custom Hooks Strategy
+
+**`useBookQuotes.ts`** - Core data management
+- Manages books and quotes state
+- SQLite CRUD operations
+- Data loading and persistence
+- Export: `{ books, addBook, deleteBook, updateBook }`
+
+**`useBookInput.ts`** - Form state and OCR
+- Form field state management
+- Camera integration
+- OCR workflow orchestration
+- Validation logic
+- Export: `{ title, author, quote, note, handleOcrFromImage, ... }`
+
+**Benefits:**
+- Separation of concerns
+- Reusable logic
+- Easy testing
+- Clear data flow
+
+---
+
+## 🐛 Error Handling & Navigation
+
+### Custom Not Found Screen
+- Catch-all route for invalid navigation
+- Branded 404 page with navigation back
+- Better UX than default Expo error
+
+### Layout Debugging
+**Problem:** Early UI alignment issues
+- Negative margins causing overflow
+- Inconsistent spacing
+
+**Solution:** Pure Flexbox approach
+- Eliminated negative margins
+- Used flex properties for layout
+- Consistent spacing from theme.ts
+
+---
+
+## 🛠️ Development Tooling
+
+### Code Quality
+- **ESLint:** Consistent code style enforcement
+- **Prettier:** Automatic formatting
+- **TypeScript:** Strict mode enabled
+  - Prevents type mismatches
+  - Better autocomplete
+  - Safer refactoring
+
+### Development Workflow
+- Expo Go for rapid testing on device
+- Hot reload for instant feedback
+- Console logging for debugging
+- Git feature branches for experiments
+
+---
+
+## 📝 Key Features & Implementation Notes
+
+### Complete CRUD Operations (October 16, 2025)
+- Add/edit/remove books
+- Add/edit/remove quotes
+- Swipe-to-delete gesture for books
+- In-place editing with form validation
+
+### Personal Notes on Quotes (October 16, 2025)
+- Optional note field alongside each quote
+- Helps users remember why a quote matters
+- Encourages deeper engagement with reading
+
+### Secure Login (October 16, 2025)
+- User authentication for privacy
+- Personal library protection
+- Foundation for future cloud sync
+
+### Book Cover Recognition (Future)
+- OCR for book covers to auto-fill title/author
+- Integration with book databases for cover images
+- Reduces manual data entry
+
+---
+
+## 🎯 Technical Decisions & Trade-offs
+
+### Why Managed Expo?
+**Decision:** Stay in managed workflow, avoid ejecting
+
+**Trade-offs:**
+- ❌ Limited to Expo SDK features
+- ❌ Can't use some native libraries
+- ✅ Simpler deployment
+- ✅ OTA updates
+- ✅ Better developer experience
+- ✅ Easier maintenance
+
+**Reflection:** For a learning project and MVP, managed Expo was the right choice. Native features can be added later if needed.
+
+### Why Cloud OCR vs Native?
+**Decision:** Use Google Cloud Vision API instead of on-device ML
+
+**Trade-offs:**
+- ❌ Requires internet connection
+- ❌ Privacy concerns (image sent to cloud)
+- ❌ API costs (though minimal for personal use)
+- ✅ Works in managed Expo
+- ✅ No complex ML model management
+- ✅ High accuracy
+- ✅ Simple implementation
+
+**Reflection:** For an MVP, cloud OCR struck the right balance between functionality and complexity.
+
+### Why SQLite vs AsyncStorage?
+**Decision:** Migrate from AsyncStorage to SQLite
+
+**Trade-offs:**
+- ❌ More setup complexity
+- ❌ Migration script required
+- ✅ Better performance at scale
+- ✅ Proper relational data
+- ✅ Complex queries possible
+- ✅ Foundation for search/filter
+
+**Reflection:** Worth the migration effort for future features and better data modeling.
+
+---
+
+## 🚀 Future Plans (Post-Capstone)
+
+### Native OCR Integration
+- Integrate iOS Live Text API directly (when Expo supports it)
+- Use Google Lens on Android
+- Requires leaving Expo Go or waiting for SDK support
+- Better privacy and offline functionality
+
+### Discover Feature (Social Reading)
+- Share quotes with community
+- Browse quotes from other readers
+- Follow favorite readers
+- Privacy controls (public/private quotes)
+- Backend infrastructure needed
+
+### Advanced Features
+- Cloud sync across devices
+- Search and filter across all quotes
+- Export quotes as formatted documents
+- Highlight specific parts of quotes
+- Bookmark and favorites system
+- Reading statistics and insights
+
+### Technical Improvements
+- Loading indicators for OCR processing
+- Offline mode with queue sync
+- API key security (Firebase Auth)
+- Performance optimization for large libraries
+- Automated testing suite
+
+---
+
+## 💡 Lessons Learned
+
+### 1. **Start Simple, Add Complexity Later**
+- Managed Expo → Native build only if necessary
+- AsyncStorage → SQLite when needed
+- MVP features first, polish later
+
+### 2. **Platform Features Matter**
+- Don't rebuild what iOS/Android already do well
+- Live Text is better than custom OCR for many use cases
+- Leverage native capabilities when possible
+
+### 3. **Developer Experience Is a Feature**
+- Expo Go's instant testing saves hours
+- Hot reload keeps flow state
+- Good tooling (ESLint, TypeScript) prevents bugs
+
+### 4. **Git Branches Enable Experimentation**
+- Feature branches preserve working implementations
+- Easy to try radical changes without risk
+- Clean main branch for stable releases
+
+### 5. **Design Systems Pay Off**
+- theme.ts makes style changes trivial
+- Consistent spacing looks professional
+- Dark mode support easier with tokens
+
+### 6. **User Behavior Insights**
+- The act of capturing quotes changes how people read
+- Personal notes make quotes more meaningful
+- Simple UX beats feature-rich complexity
+
+---
+
+## 📊 Project Stats
+
+**Development Time:** ~3 weeks
+**Total Commits:** 50+ (across all branches)
+**Lines of Code:** ~2,000
+**Key Dependencies:**
+- expo: ^52.0.0
+- expo-sqlite: latest
+- expo-image-picker: latest
+- expo-file-system: latest
+- react-native: 0.76.5
+
+**Platforms Tested:**
+- iOS 18+ (iPhone 12, 14, 16)
+- Expo Go environment
+- iOS Simulator
+
+---
+
+## 🙏 Acknowledgments
+
+### Technical Resources
+- Expo documentation and community
+- React Native docs
+- Apple HIG for design guidance
+- Google Cloud Vision API docs
+
+### Inspiration
+- Fellow book lovers who lose track of quotes
+- Apps like Readwise and Goodreads
+- The joy of re-reading highlighted passages
+
+---
+
+## 🔚 Reflection
+
+This project taught me that **constraints breed creativity**. Staying in managed Expo forced simpler solutions. Failed OCR attempts taught valuable lessons about when to use platform features vs building custom. The journey from AsyncStorage to SQLite showed how MVPs should evolve.
+
+Most importantly: **the best feature is the one that makes users engage more deeply with what matters** - in this case, reading. The app isn't just about storing quotes; it's about noticing them in the first place.
+
+Building MarkItDown reinforced that technology should enhance human experiences, not replace them. Sometimes the best technical solution is the one that gets out of the way.
+
+---
+
+**Last Updated:** October 21, 2025  
+**Version:** 1.0 (Capstone Submission)

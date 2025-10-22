@@ -338,9 +338,9 @@ This document captures the technical decisions, challenges, and lessons learned 
 - Personal library protection
 - Foundation for future cloud sync
 
-### Book Cover Recognition (Future)
+### Book Cover Recognition (October 21, 2025)
 - OCR for book covers to auto-fill title/author
-- Integration with book databases for cover images
+- Integration with book databases for cover images, book title an author
 - Reduces manual data entry
 
 ---
@@ -405,18 +405,14 @@ This document captures the technical decisions, challenges, and lessons learned 
 - Backend infrastructure needed
 
 ### Advanced Features
-- Cloud sync across devices
 - Search and filter across all quotes
-- Export quotes as formatted documents
 - Highlight specific parts of quotes
 - Bookmark and favorites system
 - Reading statistics and insights
 
 ### Technical Improvements
-- Loading indicators for OCR processing
-- Offline mode with queue sync
-- API key security (Firebase Auth)
-- Performance optimization for large libraries
+- Offline mode
+- Google Outh
 - Automated testing suite
 
 ---
@@ -435,8 +431,7 @@ This document captures the technical decisions, challenges, and lessons learned 
 
 ### 3. **Developer Experience Is a Feature**
 - Expo Go's instant testing saves hours
-- Hot reload keeps flow state
-- Good tooling (ESLint, TypeScript) prevents bugs
+- Good tooling (ESLint, TypeScript, Jest) prevents bugs
 
 ### 4. **Git Branches Enable Experimentation**
 - Feature branches preserve working implementations
@@ -446,7 +441,6 @@ This document captures the technical decisions, challenges, and lessons learned 
 ### 5. **Design Systems Pay Off**
 - theme.ts makes style changes trivial
 - Consistent spacing looks professional
-- Dark mode support easier with tokens
 
 ### 6. **User Behavior Insights**
 - The act of capturing quotes changes how people read
@@ -474,28 +468,13 @@ This document captures the technical decisions, challenges, and lessons learned 
 
 ---
 
-## 🙏 Acknowledgments
-
-### Technical Resources
-- Expo documentation and community
-- React Native docs
-- Apple HIG for design guidance
-- Google Cloud Vision API docs
-
-### Inspiration
-- Fellow book lovers who lose track of quotes
-- Apps like Readwise and Goodreads
-- The joy of re-reading highlighted passages
-
----
-
 ## 🔚 Reflection
 
 This project taught me that **constraints breed creativity**. Staying in managed Expo forced simpler solutions. Failed OCR attempts taught valuable lessons about when to use platform features vs building custom. The journey from AsyncStorage to SQLite showed how MVPs should evolve.
 
 Most importantly: **the best feature is the one that makes users engage more deeply with what matters** - in this case, reading. The app isn't just about storing quotes; it's about noticing them in the first place.
 
-Building MarkItDown reinforced that technology should enhance human experiences, not replace them. Sometimes the best technical solution is the one that gets out of the way.
+Building MarkItDown reinforced that technology should enhance human experiences, not replace them.
 
 ---
 

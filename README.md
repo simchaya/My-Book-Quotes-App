@@ -24,10 +24,13 @@ All your favorite passages, organized by book, always with you.
 <td>
   <video width="300" src="https://github.com/user-attachments/assets/f11c20b2-0a12-40f7-b3d0-6a2cff24855b" controls></video>
 </td>
+<td> 
+  <video width="300" src="https://github.com/user-attachments/assets/f62e7680-1eef-4350-a99c-00fdeb0257b3" controls></video>
+</td>
 </tr>
 </table>
 
-*Adding a book with cover recognition • Capturing quotes with OCR camera*
+•   Adding a book with cover recognition   •   Capturing quotes with OCR camera   •   Getting started and about page
 
 ---
 

@@ -108,7 +108,7 @@ It's not just about saving quotes. It's about reading more.
 - Native OCR integration - Use iPhone Live Text or Google Lens directly
 - Discover feature - Explore and save quotes shared by other readers
 - Social reading - Connect with book lovers and see what they're highlighting
-- 
+  
 ---
 
 ## 🤝 Want to help?

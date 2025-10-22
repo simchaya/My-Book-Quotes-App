@@ -16,7 +16,8 @@ All your favorite passages, organized by book, always with you.
 
 ## 🎥 See it in action
 
-![Demo Video](./assets/videos/demo1.mp4)
+
+https://github.com/user-attachments/assets/baf7346b-d01b-48f9-b5c4-c71d60f2c218
 
 *A quick walkthrough of adding a book and capturing quotes*
 

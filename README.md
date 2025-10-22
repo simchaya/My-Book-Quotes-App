@@ -16,6 +16,10 @@ All your favorite passages, organized by book, always with you.
 
 ## 🎥 See it in action
 
+![Demo Video](./assets/demo1.MOV)
+
+*A quick walkthrough of adding a book and capturing quotes*
+
 ---
 
 ## ✨ Features

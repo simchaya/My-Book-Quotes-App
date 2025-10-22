@@ -1,6 +1,6 @@
 # 📚 MarkItDown
 
-**Never lose a beautiful quote again.**
+**To be kept forever.**
 
 MarkItDown helps you capture and save your favorite book quotes—right from your phone.
 

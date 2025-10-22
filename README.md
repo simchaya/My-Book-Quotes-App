@@ -103,6 +103,14 @@ It's not just about saving quotes. It's about reading more.
 
 ---
 
+## 🔮 What's next?
+
+- Native OCR integration - Use iPhone Live Text or Google Lens directly
+- Discover feature - Explore and save quotes shared by other readers
+- Social reading - Connect with book lovers and see what they're highlighting
+- 
+---
+
 ## 🤝 Want to help?
 
 Found a bug? Have an idea? Open an issue or reach out!
@@ -111,7 +119,7 @@ This is a learning project, and I'd love your feedback.
 
 ---
 
-## 👤 Made by
+## 👩‍💻  Made by
 
 **Simcha biton Shack**  
 Book lover • Developer • [GitHub](https://github.com/simchaya)

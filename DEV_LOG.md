@@ -212,6 +212,153 @@ This document captures the technical decisions, challenges, and lessons learned 
 - Simple, reliable user flow
 
 ---
+---
+
+## 🧪 Testing Implementation (October 20, 2025)
+
+### Setting Up Jest with Expo
+
+**Goal:** Add unit tests for custom hooks to demonstrate testing proficiency
+
+**Initial Challenge: Dependency Conflicts**
+- React 19.1.0 vs react-test-renderer 19.2.0 mismatch
+- `@testing-library/react-native` installation failed with ERESOLVE errors
+- Standard `npm install` blocked by peer dependency checks
+
+**Solution:**
+```bash
+npm install --save-dev @testing-library/react-native@13.3.3 --force
+```
+- Used `--force` flag to override peer dependency validation
+- Testing library does support React 19+ (replaces deprecated react-test-renderer)
+- Conflict was only about minor version differences
+
+### Test Organization Strategy
+
+**Decision:** Co-locate tests with source code
+```
+hooks/
+  useBookQuotes.ts
+  __tests__/
+    useBookQuotes.test.ts
+  useBookInput.ts
+  __tests__/
+    useBookInput.test.ts
+```
+
+**Benefits:**
+- Tests live next to code they test
+- Easier to maintain and find
+- Jest auto-discovers `__tests__/` folders anywhere in project
+- More organized than single root `__tests__/` directory
+
+### Incremental Testing Approach
+
+Built tests **one at a time** to avoid breaking the app:
+1. ✅ Install jest-expo + dependencies
+2. ✅ Add test script to package.json
+3. ✅ Configure Jest preset
+4. ✅ Install @testing-library/react-native (with --force)
+5. ✅ Write first simple test
+6. ✅ Add tests incrementally, verifying each passes
+
+**Philosophy:** "Don't break the app" - test after each step
+
+### Test Coverage
+
+**useBookQuotes.ts (9 tests)**
+- Database initialization
+- CRUD operations (Create, Read, Update, Delete)
+- Case-insensitive book title matching
+- State updates after operations
+- All database functions properly mocked
+
+**useBookInput.ts (5 tests)**
+- Form state management
+- Input validation
+- Save with trimmed whitespace
+- Alert on missing fields
+- State reset after save
+
+**Total: 14 passing tests**
+
+---
+
+---
+
+## 🔐 Multi-User Authentication & Data Isolation (October 21, 2025)
+
+### Challenge: Shared Database Across Users
+**Problem Discovered:** 
+- SQLite database was device-local, not user-scoped
+- All users on the same device saw the same books
+- Switching accounts didn't change data
+- Major privacy/data integrity issue
+
+**Root Cause:**
+- Books table lacked `userId` column
+- Database queries didn't filter by user
+- Original implementation assumed single-user device
+
+**Changes Made:**
+1. **database.ts**
+   - Added `userId` parameter to all CRUD functions
+   - `insertBook(id, userId, title, coverUri)`
+   - `deleteBook(bookId, userId)` - only deletes if owned by user
+   - `updateBookTitle(bookId, userId, newTitle)` - ownership validation
+   - `getBooksWithQuotes(userId)` - filters results by user
+   - Added `resetDatabase()` helper for schema migration
+
+2. **useBookQuotes.ts**
+   - Integrated `useAuth()` hook to get current user
+   - Extracted `userId` from `user?.uid`
+   - Passed `userId` to all database operations
+   - Added `userId` to `useEffect` dependency for user switching
+
+3. **AuthContext.tsx**
+   - Enhanced with `resetPassword()` function
+   - Email validation and trimming
+   - User-friendly error messages for Firebase auth codes
+   - Password reset via Firebase email workflow
+
+4. **login.tsx**
+   - Added "Forgot Password?" button (Sign In screen only)
+   - Email/password validation before submission
+   - Clear error messages for auth failures
+
+### Lessons Learned
+
+1. **Schema Changes Are Hard**
+   - SQLite doesn't auto-migrate existing databases
+   - Always plan for schema evolution from day one
+   - Migration strategies needed for production apps
+
+2. **Expo Go Limitations**
+   - Can't easily clear app data like native apps
+   - Database persists across code changes
+   - Need explicit reset mechanisms for development
+
+3. **User Context Is Critical**
+   - Multi-user support should be designed in from start
+   - Retrofitting user isolation is complex
+   - `userId` foreign keys prevent unauthorized access
+
+4. **Firebase Auth Benefits**
+   - Handles password hashing, security
+   - Built-in email verification
+   - Password reset flows out of the box
+   - Focus on app logic, not auth infrastructure
+
+### Future Improvements
+
+- [ ] OAuth providers (Google, Apple Sign-In)
+
+---
+
+**Status:** ✅ Multi-user support complete and tested  
+**Breaking Change:** Requires database reset for existing users
+
+---
 
 ## 🏗️ Architecture & Code Organization
 

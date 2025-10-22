@@ -16,10 +16,16 @@ All your favorite passages, organized by book, always with you.
 
 ## 🎥 See it in action
 
-<p align="center">
-  <video width="320" src="https://github.com/user-attachments/assets/baf7346b-d01b-48f9-b5c4-c71d60f2c218" controls></video>
-  <video width="320" src="https://github.com/user-attachments/assets/f11c20b2-0a12-40f7-b3d0-6a2cff24855b" controls></video>
-</p>
+<table>
+<tr>
+<td>
+  <video width="300" src="https://github.com/user-attachments/assets/baf7346b-d01b-48f9-b5c4-c71d60f2c218" controls></video>
+</td>
+<td>
+  <video width="300" src="https://github.com/user-attachments/assets/f11c20b2-0a12-40f7-b3d0-6a2cff24855b" controls></video>
+</td>
+</tr>
+</table>
 
 *Adding a book with cover recognition • Capturing quotes with OCR camera*
 

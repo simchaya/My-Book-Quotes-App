@@ -58,8 +58,8 @@ All your favorite passages, organized by book, always with you.
 
 1. **On your computer:**
    ```bash
-   git clone https://github.com/yourusername/markitdown.git
-   cd markitdown
+   git clone https://github.com/simchaya/My-Book-Quotes-App.git
+   cd MarkItDown
    npm install
    npx expo start
    ```
@@ -97,9 +97,9 @@ If you're running your own instance, you'll need to set up the Google Cloud Visi
 
 I kept losing the quotes that made me stop and think. But more than that, I noticed something: when I knew I'd capture a great quote, I read more intentionally. I paid closer attention.
 
-MarkItDown is designed to make reading more rewarding. The act of capturing a quote—snapping a photo, adding your thought about why it matters—makes you engage deeper with what you're reading.
+MarkItDown is designed to make reading more rewarding. The act of capturing a quote—snapping a photo, adding your thought about why it matters, makes you engage deeper with what you're reading.
 
-It's not just about saving quotes. It's about reading better.
+It's not just about saving quotes. It's about reading more.
 
 ---
 

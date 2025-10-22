@@ -1,82 +1,108 @@
-# 📚 Welcome to my Book Quotes app
+# 📚 MarkItDown
 
-A simple React Native + Expo app for iOS that lets you log your favorite books and quotes.
-Built with a focus on simplicity, modularity, and a user-friendly interface.
+**Never lose a beautiful quote again.**
 
-## Features
+MarkItDown helps you capture and save your favorite book quotes—right from your phone.
 
-- **Core**
-  - Add books with multiple quotes
-  - Prevent duplicate book entries (quotes grouped by book)
-  - Local persistence with AsyncStorage
-  - Custom “Not Found” screen
-  - Swipe-to-delete books (iOS-style gesture)
+---
 
-- **UI/UX**
-  - Apple HIG–inspired design
-  - Dark/light mode support
-  - Design system (`theme.ts` for typography, colors, spacing)
-  - Consistent 8pt spacing rhythm
+## 📖 What does it do?
 
-## New in this version
-- Take book cover photos with device camera  
-- Covers now display with saved books  
-- Full-screen scroll (inputs + quotes)  
-- KeyboardAvoidingView on iOS (inputs move above keyboard)
-- Swipe-to-delete for books (HIG-aligned interaction)
+Take a photo of your book cover. Snap a picture of a quote. Done.
 
- ## Planned Enhancements
-- CRUD: edit/remove books & quotes  
-- Cloud sync (MongoDB + login)  
-- OCR & search across books  
-- Highlighting + improved layouts 
-- Discover quotes 
+All your favorite passages, organized by book, always with you.
 
+---
 
- ## Project Structure
+## 🎥 See it in action
 
- ```bash
- app/
-  ├─ (tabs)/
-  │   ├─ index.tsx        # Home screen (books + quotes)
-  │   ├─ about.tsx        # About the app
-  │   └─ +not-found.tsx   # Not Found screen (fallback route)
-  ├─ _layout.tsx          # Root layout with navigation
- hooks/
-  └─ useBookQuotes.ts     # Custom hook for managing books + quotes
- utils/
-  ├─ async-storage.ts     # storeObject / getObject helpers
-  ├─ id.ts                # uniqueId() generator
-  └─ theme.ts             # colors + typography (light/dark mode)
- ```
+---
 
-## Get started:
+## ✨ Features
 
-1. Install dependencies
+📸 **Snap your book cover** - The app reads the title and author for you, no typing needed
 
+🔍 **Capture quotes instantly** - Point your camera at any page, the text appears automatically
+
+💭 **Add your thoughts** - Write notes next to quotes to remember why they moved you
+
+🔐 **Your private collection** - Secure login keeps your library personal
+
+📚 **All your books together** - Beautiful covers, organized quotes, always at your fingertips
+
+🌙 **Light and dark mode** - Easy on the eyes, day or night
+
+---
+
+## 🚀 Try it yourself
+
+**You'll need:**
+- An iPhone or Android phone
+- The free "Expo Go" app
+- 5 minutes
+
+**Setup:**
+
+1. **On your computer:**
    ```bash
+   git clone https://github.com/yourusername/markitdown.git
+   cd markitdown
    npm install
-   ```
-
-2. Start the app
-
-   ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+2. **On your phone:**
+   - Download "Expo Go" from the App Store or Google Play
+   - Scan the QR code that appears on your computer screen
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+3. **Start capturing quotes!**
 
+*Note: This is a mobile app—camera features only work on real phones, not in a web browser.*
 
-## Learn more
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+## 💡 How it works
 
+1. **Snap your book cover** → App automatically fills in title, author, and finds the cover image
+2. **Capture a quote** → Point your camera at the page, text appears instantly
+3. **Add your thought** → Write why this quote matters to you (optional but powerful)
+4. **Read more intentionally** → Knowing you can save great moments makes you notice them more
 
-# Contributing
-This is a learning project as I explore React Native, Expo, and mobile app publishing.
-Ideas, feedback, or pull requests are welcome!
+Your personal library grows with every book you love.
+
+---
+
+## 📝 Technical note
+
+The camera features use Google Cloud Vision API for text recognition (OCR). The app connects to a cloud function to process images and extract text.
+
+If you're running your own instance, you'll need to set up the Google Cloud Vision endpoint (see `/cloud-function/` folder). Otherwise, you can type quotes manually.
+
+---
+
+## 🎯 Why I built this
+
+I kept losing the quotes that made me stop and think. But more than that, I noticed something: when I knew I'd capture a great quote, I read more intentionally. I paid closer attention.
+
+MarkItDown is designed to make reading more rewarding. The act of capturing a quote—snapping a photo, adding your thought about why it matters—makes you engage deeper with what you're reading.
+
+It's not just about saving quotes. It's about reading better.
+
+---
+
+## 🤝 Want to help?
+
+Found a bug? Have an idea? Open an issue or reach out!
+
+This is a learning project, and I'd love your feedback.
+
+---
+
+## 👤 Made by
+
+**Simcha biton Shack**  
+Book lover • Developer • [GitHub](https://github.com/simchaya)
+
+---
+
+**For book lovers, by a book lover** ❤️📚

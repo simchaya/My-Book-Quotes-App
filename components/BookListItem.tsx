@@ -1,22 +1,21 @@
 import { Book, Quote } from "@/hooks/useBookQuotes";
 import { spacing, typography, useThemeColors } from "@/utils";
-import React, { useState } from "react"; // ADDED: useState
-import { 
-  Alert, 
-  Image, 
-  Pressable, 
-  StyleSheet, 
-  Text, 
-  View, 
-  TextInput // ADDED: TextInput 
+import React, { useState } from "react";
+import {
+  Alert,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  TextInput
 } from "react-native";
 
-// MODIFIED: Reverting onUpdateQuote signature to original two arguments
 interface BookListItemProps {
   book: Book;
   onDeleteQuote: (quoteId: string) => void;
   onUpdateTitle: (bookId: string, newTitle: string) => void;
-  onUpdateQuote: (quoteId: string, newText: string) => void; // Original signature
+  onUpdateQuote: (quoteId: string, newText: string) => void;
 }
 
 // State to manage the editing process
@@ -33,8 +32,8 @@ const BookListItem = ({
   onUpdateQuote,
 }: BookListItemProps) => {
   const colors = useThemeColors();
-  
-  // NEW STATE: Tracks the quote currently being edited
+
+  // Tracks the quote currently being edited
   const [editing, setEditing] = useState<EditingState | null>(null);
 
   // ------------------------------------
@@ -67,22 +66,22 @@ const BookListItem = ({
 
   const handleSaveEditQuote = () => {
     if (!editing) return;
-    
+
     // Check for non-empty text
     if (editing.newText.trim().length > 0) {
-        onUpdateQuote(editing.quoteId, editing.newText.trim());
-        setEditing(null); // Close the editor
+      onUpdateQuote(editing.quoteId, editing.newText.trim());
+      setEditing(null); // Close the editor
     } else {
-        Alert.alert("Quote Empty", "Quote text cannot be empty.");
+      Alert.alert("Quote Empty", "Quote text cannot be empty.");
     }
   };
-  
+
   const handleCancelEditQuote = () => {
-      setEditing(null); // Close the editor
+    setEditing(null); // Close the editor
   };
 
   // ------------------------------------
-  // Delete Quote Logic (Unchanged)
+  // Delete Quote Logic
   // ------------------------------------
   const handleDeleteQuote = (quote: Quote) => {
     Alert.alert(
@@ -123,8 +122,8 @@ const BookListItem = ({
           <View style={styles.quoteRow}>
             <Pressable
               style={styles.quoteTextContainer}
-              // MODIFIED: Start the custom edit process instead of Alert.prompt
-              onPress={() => handleStartEditQuote(q)} 
+              // Start the custom edit process instead of Alert.prompt
+              onPress={() => handleStartEditQuote(q)}
             >
               <Text
                 style={[
@@ -145,17 +144,17 @@ const BookListItem = ({
           </View>
         </View>
       ))}
-      
-      {/* NEW: Custom Full-Screen Quote Editor Modal */}
+
+      {/* Custom Full-Screen Quote Editor Modal */}
       {editing && (
         <View style={[StyleSheet.absoluteFill, styles.editorOverlay, { backgroundColor: colors.card }]}>
           <Text style={[typography.title1, styles.editorHeader, { color: colors.text }]}>Edit Quote</Text>
-          
+
           <TextInput
-            style={[styles.editorInput, { 
-                borderColor: colors.border, 
-                color: colors.text,
-                backgroundColor: colors.background // Use background for distinction
+            style={[styles.editorInput, {
+              borderColor: colors.border,
+              color: colors.text,
+              backgroundColor: colors.background // Use background for distinction
             }]}
             onChangeText={(text) => setEditing(prev => (prev ? { ...prev, newText: text } : null))}
             value={editing.newText}
@@ -166,15 +165,15 @@ const BookListItem = ({
           />
 
           <View style={styles.editorButtonRow}>
-            <Pressable 
-                onPress={handleCancelEditQuote} 
-                style={[styles.editorButton, styles.cancelButton]}
+            <Pressable
+              onPress={handleCancelEditQuote}
+              style={[styles.editorButton, styles.cancelButton]}
             >
               <Text style={[typography.body, styles.cancelText]}>Cancel</Text>
             </Pressable>
-            <Pressable 
-                onPress={handleSaveEditQuote} 
-                style={[styles.editorButton, styles.saveButton, {backgroundColor: colors.buttonBg}]}
+            <Pressable
+              onPress={handleSaveEditQuote}
+              style={[styles.editorButton, styles.saveButton, { backgroundColor: colors.buttonBg }]}
             >
               <Text style={[typography.body, { color: colors.buttonText, fontWeight: 'bold' }]}>Save</Text>
             </Pressable>
@@ -187,7 +186,7 @@ const BookListItem = ({
 
 const styles = StyleSheet.create({
   bookItem: {
-    flex: 1, // let parent control layout
+    flex: 1,
     marginBottom: spacing.lg,
     padding: spacing.md,
     borderRadius: 12,
@@ -219,20 +218,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 18,
   },
-  
-  // NEW STYLES FOR CUSTOM EDITOR
+
   editorOverlay: {
     padding: spacing.md,
-    zIndex: 10, // Ensure it floats above content
+    zIndex: 10,
     borderRadius: 12,
-    // Note: Since bookItem has padding and borderRadius, 
-    // this overlay will be contained within the book card boundary.
   },
   editorHeader: {
     marginBottom: spacing.md,
   },
   editorInput: {
-    flex: 1, // Take up remaining vertical space
+    flex: 1,
     padding: spacing.md,
     borderWidth: 1,
     borderRadius: 8,
@@ -260,7 +256,6 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   saveButton: {
-    // Background color applied inline using theme colors
   }
 });
 

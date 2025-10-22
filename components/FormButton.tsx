@@ -20,12 +20,12 @@
 import { spacing, typography, useThemeColors } from "@/utils";
 import React from "react";
 import {
-    Pressable,
-    PressableProps,
-    StyleProp,
-    StyleSheet,
-    Text,
-    ViewStyle,
+  Pressable,
+  PressableProps,
+  StyleProp,
+  StyleSheet,
+  Text,
+  ViewStyle,
 } from "react-native";
 
 interface FormButtonProps extends PressableProps {
@@ -49,7 +49,7 @@ const FormButton: React.FC<FormButtonProps> = ({
 
   /**
    * TypeScript-safe callback for dynamic Pressable styling.
-   * We explicitly type the parameter and return type to ensure compatibility
+   * explicitly type the parameter and return type to ensure compatibility
    * with `PressableProps.style` (which expects a function returning StyleProp<ViewStyle>).
    */
   const getButtonStyle = ({ pressed }: { pressed: boolean }): StyleProp<ViewStyle> => [

@@ -148,7 +148,7 @@ export const resetDatabase = async () => {
             DROP TABLE IF EXISTS books;
         `);
         console.log('✅ Tables dropped');
-        
+
         // Recreate with new schema
         await initDatabase();
         console.log('✅ Database reset complete with userId support');

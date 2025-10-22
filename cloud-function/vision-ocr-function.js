@@ -18,13 +18,10 @@
  */
 
 // Import the Google Cloud Vision API Client Library
-// NOTE: Ensure this dependency is added to your package.json before deployment.
-// Command: npm install @google-cloud/vision
 const { ImageAnnotatorClient } = require('@google-cloud/vision');
 
 // Initialize the client outside of the main function for better performance
 // The client will automatically use the Service Account credentials assigned
-// to this Cloud Function, keeping your API Key secure.
 const visionClient = new ImageAnnotatorClient();
 
 // --------------------------------------------------------------------------
@@ -123,14 +120,14 @@ exports.ocrHandler = async (req, res) => {
   try {
     // 1. Validate and extract image data
     const base64Image = validateRequest(req.body);
-    // NEW: Log the image data size to confirm a valid image was received
+    //Log the image data size to confirm a valid image was received
     console.log(`Received image data size: ${base64Image.length} bytes.`);
 
     // 2. Perform the core OCR logic
     const extractedText = await performOcr(base64Image);
 
     // 3. Respond with the extracted text
-    // We send a success (200) response containing the extracted text.
+    // send a success (200) response containing the extracted text.
     res.status(200).send({
       success: true,
       text: extractedText,
@@ -143,7 +140,7 @@ exports.ocrHandler = async (req, res) => {
     res.status(500).send({
       success: false,
       error: 'An internal server error occurred during OCR processing.',
-      details: error.message, // For debugging, you can include the message
+      details: error.message, // For debugging
     });
   }
 };

@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Trim and lowercase the email
       const trimmedEmail = email.trim().toLowerCase();
-      
+
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(trimmedEmail)) {
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('✅ Signed up:', userCredential.user.email);
     } catch (error: any) {
       console.error('Sign up error:', error.message);
-      
+
       // Provide user-friendly error messages
       if (error.code === 'auth/email-already-in-use') {
         throw new Error('This email is already registered. Please sign in instead.');
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (error.code === 'auth/weak-password') {
         throw new Error('Password must be at least 6 characters');
       }
-      
+
       throw error;
     }
   };
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Trim and lowercase the email
       const trimmedEmail = email.trim().toLowerCase();
-      
+
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(trimmedEmail)) {
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('✅ Signed in:', userCredential.user.email);
     } catch (error: any) {
       console.error('Sign in error:', error.message);
-      
+
       // Provide user-friendly error messages
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
         throw new Error('Invalid email or password');
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (error.code === 'auth/invalid-email') {
         throw new Error('Please enter a valid email address');
       }
-      
+
       throw error;
     }
   };
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resetPassword = async (email: string) => {
     try {
       const trimmedEmail = email.trim().toLowerCase();
-      
+
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(trimmedEmail)) {
@@ -123,13 +123,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('📧 Password reset email sent to:', trimmedEmail);
     } catch (error: any) {
       console.error('Password reset error:', error.message);
-      
+
       if (error.code === 'auth/user-not-found') {
         throw new Error('No account found with this email');
       } else if (error.code === 'auth/invalid-email') {
         throw new Error('Please enter a valid email address');
       }
-      
+
       throw error;
     }
   };

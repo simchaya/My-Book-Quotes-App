@@ -4,7 +4,6 @@
  * Custom React hook that encapsulates all logic for the Book Input Form.
  */
 
-// 1. MODIFIED IMPORT: Use the new comprehensive helper function name
 import { fetchBookData } from "@/utils/fetchBookCover";
 import * as FileSystem from "expo-file-system/legacy";
 import * as ImagePicker from "expo-image-picker";
@@ -22,29 +21,29 @@ export const useBookInput = (
   const [isTitleOcrLoading, setIsTitleOcrLoading] = useState(false);
 
   // ------------------------------------------
-  // MODIFIED: Auto-fetch book data when title changes
+  // Auto-fetch book data when title changes
   // ------------------------------------------
   useEffect(() => {
-    // Skip if no title, or if we are actively running OCR (to prevent conflicts)
+    // Skip if no title, or if actively running OCR (to prevent conflicts)
     if (!title || isTitleOcrLoading) return;
 
     const delay = setTimeout(async () => {
       try {
         // Use the new fetchBookData function
         const fetchedData = await fetchBookData(title);
-        
+
         if (fetchedData) {
-            
-            // A. New UX Enhancement: Overwrite title with the formal API title/author
-            if (fetchedData.title && fetchedData.title !== title) {
-                // Set the formal title/author from the API
-                setTitle(fetchedData.title); 
-            }
-            
-            // B. Original Cover Fetch Logic: Update Cover if a new one is found
-            if (fetchedData.coverUri && fetchedData.coverUri !== coverUri) {
-                setCoverUri(fetchedData.coverUri);
-            }
+
+          // A. New UX Enhancement: Overwrite title with the formal API title/author
+          if (fetchedData.title && fetchedData.title !== title) {
+            // Set the formal title/author from the API
+            setTitle(fetchedData.title);
+          }
+
+          // B. Original Cover Fetch Logic: Update Cover if a new one is found
+          if (fetchedData.coverUri && fetchedData.coverUri !== coverUri) {
+            setCoverUri(fetchedData.coverUri);
+          }
         }
       } catch (err) {
         console.warn("Auto-book data fetch failed:", err);
@@ -53,10 +52,10 @@ export const useBookInput = (
 
     return () => clearTimeout(delay);
     // Added isTitleOcrLoading for safety against race conditions
-  }, [title, isTitleOcrLoading, coverUri]); 
+  }, [title, isTitleOcrLoading, coverUri]);
 
   // ------------------------------------------
-  // Handle manual photo capture (remains the same)
+  // Handle manual photo capture 
   // ------------------------------------------
   const handlePickCover = useCallback(async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -79,7 +78,7 @@ export const useBookInput = (
   }, []);
 
   // ------------------------------------------
-  // Handle save logic (remains the same)
+  // Handle save logic
   // ------------------------------------------
   const handleSave = useCallback(() => {
     if (!title.trim() || !quote.trim()) {
@@ -119,9 +118,6 @@ export const useBookInput = (
       if (result.canceled || !result.assets?.[0]?.uri) return;
       const uri = result.assets[0].uri;
 
-      // NOTE: We rely entirely on the useEffect hook to find and set the cover/formal title.
-      // We are no longer setting the temporary local URI here.
-
       const base64 = await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
 
       const response = await fetch(OCR_FUNCTION_URL, {
@@ -149,7 +145,7 @@ export const useBookInput = (
     }
   }
 
-  // OCR for Quote Text (remains the same)
+  // OCR for Quote Text
   async function handleOcrFromImage() {
     try {
       setIsOcrLoading(true);
@@ -195,7 +191,7 @@ export const useBookInput = (
   }
 
   // ------------------------------------------
-  // Return hook API (remains the same)
+  // Return hook API
   // ------------------------------------------
   return {
     title,

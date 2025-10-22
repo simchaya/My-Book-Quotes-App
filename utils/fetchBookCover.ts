@@ -1,11 +1,10 @@
-// utils/fetchBookCover.ts (UPDATED)
+// utils/fetchBookCover.ts
 
 interface BookData {
   coverUri?: string;
-  title?: string; // New field for the formal title/author
+  title?: string;
 }
 
-// Renaming the exported function to reflect its new, broader purpose
 export async function fetchBookData(query: string): Promise<BookData | undefined> {
   if (!query || query.trim().length < 2) return undefined;
 

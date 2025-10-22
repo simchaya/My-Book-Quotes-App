@@ -57,7 +57,7 @@ export default function NotFoundScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    flex: 1, // ⬅️ fill screen
+    flex: 1, // fill screen
   },
   container: {
     flex: 1,                 // fill space inside safe area

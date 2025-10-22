@@ -51,32 +51,31 @@ const QuotePlaceholder = () => {
 // Main component
 // ----------------------
 const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
-  
+
   const {
     title,
     setTitle,
     quote,
     setQuote,
     coverUri,
-    handlePickCover, 
+    handlePickCover,
     handleSave,
     handleOcrFromImage,
-    isOcrLoading,             
-    handleOcrFromTitleImage,  
-    isTitleOcrLoading,        
+    isOcrLoading,
+    handleOcrFromTitleImage,
+    isTitleOcrLoading,
   } = useBookInput(onSave);
-  
+
 
   const colors = useThemeColors();
   const isIOS = Platform.OS === "ios";
-  
-  // NEW: Extracted a reusable icon component for the camera with loading state
+
+  // Extracts a reusable icon component for the camera with loading state
   const CameraIcon = ({ onPress, isLoading }: {
     onPress: () => void;
     isLoading: boolean;
   }) => (
-    // FIX: The comment // Using the original style for positioning is REMOVED to fix the JSX error
-    <View style={styles.iconButton}> 
+    <View style={styles.iconButton}>
       {isLoading ? (
         <ActivityIndicator size="small" color={colors.secondaryText} />
       ) : (
@@ -112,16 +111,15 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
           placeholder="Book title and author"
           value={title}
           onChangeText={setTitle}
-          style={{ paddingRight: 40 }} 
-        />
-        
-        {/* Title OCR Icon */}
-        <CameraIcon
-            onPress={handleOcrFromTitleImage} 
-            isLoading={isTitleOcrLoading}      
+          style={{ paddingRight: 40 }}
         />
 
-        {/* Removed: The Pressable for handlePickCover is gone */}
+        {/* Title OCR Icon */}
+        <CameraIcon
+          onPress={handleOcrFromTitleImage}
+          isLoading={isTitleOcrLoading}
+        />
+
       </View>
 
       {/* --- Favorite Quote Input with OCR camera icon --- */}
@@ -147,7 +145,7 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
         {/* Quote OCR Camera icon */}
         <CameraIcon
           onPress={handleOcrFromImage}
-          isLoading={isOcrLoading} 
+          isLoading={isOcrLoading}
         />
       </View>
 
@@ -159,7 +157,7 @@ const BookInputForm: React.FC<BookInputFormProps> = ({ onSave }) => {
           style={[styles.image, { borderColor: colors.border }]}
         />
       )}
-      
+
       {/* Save Quote Button */}
       <FormButton title="Save Quote" onPress={handleSave} />
     </View>
@@ -185,14 +183,12 @@ const styles = StyleSheet.create({
     position: "relative",
     marginBottom: spacing.md,
   },
-  // This style is now used for the single CameraIcon on both fields
   iconButton: {
     position: "absolute",
     right: spacing.md,
     top: "50%",
     transform: [{ translateY: -11 }],
   },
-  // Removed: twoIconsContainer and iconButtonCover styles are no longer needed
   quoteInputContainer: {
     position: "relative",
     marginBottom: spacing.md,
@@ -211,9 +207,9 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 16,
-    lineHeight: 22, 
+    lineHeight: 22,
   },
-  placeholderHint: { 
+  placeholderHint: {
     fontSize: 13,
     lineHeight: 18,
     marginTop: 2,

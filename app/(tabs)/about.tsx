@@ -9,7 +9,7 @@ export default function AboutScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -18,14 +18,9 @@ export default function AboutScreen() {
           MarkItDown
         </Text>
 
-        {/* Tagline
-        <Text style={[typography.body, { color: colors.secondaryText, marginBottom: spacing.xl }]}>
-          To be kept forever.
-        </Text> */}
-
         <Text style={[typography.callout, styles.subtitle, { color: colors.secondaryText }]}>
-                to be kept forever.
-              </Text>
+          to be kept forever.
+        </Text>
 
         {/* What it does */}
         <View style={[styles.card, { backgroundColor: colors.card }]}>
@@ -33,8 +28,8 @@ export default function AboutScreen() {
             What is MarkItDown?
           </Text>
           <Text style={[typography.body, { color: colors.text }]}>
-            MarkItDown helps you capture and organize your favorite book quotes. 
-            Snap a photo of your book cover, use the camera to capture quotes with 
+            MarkItDown helps you capture and organize your favorite book quotes.
+            Snap a photo of your book cover, use the camera to capture quotes with
             automatic text recognition, and add your personal thoughts—all in one place.
           </Text>
         </View>
@@ -44,7 +39,7 @@ export default function AboutScreen() {
           <Text style={[typography.title2, { color: colors.text, marginBottom: spacing.md }]}>
             How it works
           </Text>
-          
+
           <View style={styles.step}>
             <Text style={[typography.body, { color: colors.text }]}>
               1. Add your book
@@ -95,8 +90,8 @@ export default function AboutScreen() {
             About the Developer
           </Text>
           <Text style={[typography.body, { color: colors.text, marginBottom: spacing.md }]}>
-            I love reading, but I kept losing track of the quotes that moved me. 
-            This app is my solution—a simple way to capture beautiful words and 
+            I love reading, but I kept losing track of the quotes that moved me.
+            This app is my solution—a simple way to capture beautiful words and
             engage more deeply with every book I read.
           </Text>
           <Text style={[typography.body, { color: colors.secondaryText }]}>
@@ -185,8 +180,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     alignItems: "center",
     marginTop: spacing.md,
-    borderWidth: StyleSheet.hairlineWidth, 
-    borderColor: "#C7C7CC", 
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#C7C7CC",
   },
-  
+
 });

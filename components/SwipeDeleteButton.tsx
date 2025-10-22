@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
     paddingRight: spacing.md,
     borderRadius: 12,
-    // FIX: removed marginBottom and added absolute fill so it stays perfectly under row
     position: "absolute",
     top: 0,
     bottom: 0,

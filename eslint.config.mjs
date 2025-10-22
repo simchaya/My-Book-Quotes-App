@@ -8,7 +8,7 @@ export default defineConfig([
   js.configs.recommended,           // basic JavaScript rules
   tseslintConfigs.recommended,      // TypeScript rules
   {
-    files: ["**/*.{js,jsx,ts,tsx}"], // apply to your code files
+    files: ["**/*.{js,jsx,ts,tsx}"], 
     plugins: {
       react: reactPlugin,
     },

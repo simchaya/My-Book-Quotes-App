@@ -1,12 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
+  Alert,
+  FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  FlatList,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -65,14 +65,11 @@ export default function HomeScreen() {
         keyExtractor={(book) => book.id}
         // The input form is the header, which must stay visible
         ListHeaderComponent={<BookInputForm onSave={addQuoteToBook} />}
-        
-        // --- KEYBOARD FIXES ---
-        // 1. iOS: This adjusts the list's scroll content to avoid the keyboard
+
+        //This adjusts the list's scroll content to avoid the keyboard
         automaticallyAdjustKeyboardInsets={true}
-        // 2. Both: Allows the keyboard to be dismissed by dragging the list/content
-        keyboardDismissMode="interactive" 
-        // Note: You may also use keyboardDismissMode="on-drag" if "interactive" feels too aggressive.
-        
+        keyboardDismissMode="interactive"
+
         contentContainerStyle={{ paddingBottom: spacing.lg }}
         renderItem={({ item }) => (
           <View style={styles.bookRow}>

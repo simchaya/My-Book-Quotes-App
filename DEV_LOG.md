@@ -74,22 +74,20 @@ This document captures the technical decisions, challenges, and lessons learned 
 
 **Database Schema:**
 ```sql
-CREATE TABLE books (
-  id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  author TEXT NOT NULL,
-  coverUri TEXT,
-  createdAt INTEGER
-);
+    IF NOT EXISTS books (
+      id TEXT PRIMARY KEY NOT NULL,
+      userId TEXT NOT NULL,
+      title TEXT NOT NULL,
+      coverUri TEXT
+    );
 
-CREATE TABLE quotes (
-  id TEXT PRIMARY KEY,
-  bookId TEXT NOT NULL,
-  text TEXT NOT NULL,
-  note TEXT,
-  createdAt INTEGER,
-  FOREIGN KEY (bookId) REFERENCES books(id) ON DELETE CASCADE
-);
+    CREATE TABLE IF NOT EXISTS quotes (
+      id TEXT PRIMARY KEYCREATE TABLE  NOT NULL,
+      bookId TEXT NOT NULL,
+      text TEXT NOT NULL,
+      FOREIGN KEY (bookId) REFERENCES books(id) ON DELETE CASCADE
+    );
+
 ```
 
 ---
@@ -218,28 +216,49 @@ CREATE TABLE quotes (
 ## 🏗️ Architecture & Code Organization
 
 ### Project Structure
-```
-app/
-├── (tabs)/
-│   ├── index.tsx        # Home screen (books + quotes list)
-│   ├── about.tsx        # About/info screen
-│   └── +not-found.tsx   # 404 fallback route
-├── _layout.tsx          # Root navigation setup
 
-hooks/
-├── useBookQuotes.ts     # Main state management hook
-└── useBookInput.ts      # Input form logic & OCR
-
-utils/
-├── database.ts          # SQLite CRUD operations
-├── theme.ts             # Design system (colors, typography, spacing)
-└── id.ts                # Unique ID generation
-
-cloud-function/          # Google Cloud Function for OCR
-├── vision-ocr-function.js
-├── package.json
-└── .gcloudignore
-```
+| Path                                     | Description                                                        |
+| ---------------------------------------- | ------------------------------------------------------------------ |
+| **app/**                                 | Main app directory containing all Expo Router screens and layouts. |
+| ├─ **(tabs)/_layout.tsx**                | Defines tab navigator and shared tab layout.                       |
+| ├─ **(tabs)/about.tsx**                  | About screen describing the app and developer.                     |
+| ├─ **(tabs)/index.tsx**                  | Home screen showing book and quote list.                           |
+| ├─ **(tabs)/+not-found.tsx**             | Custom 404 fallback route for invalid navigation.                  |
+| ├─ **(tabs)/login.tsx**                  | User authentication screen for sign-in.                            |
+| └─ **_layout.tsx**                       | Root navigation layout applied globally.                           |
+| **assets/**                              | Static assets (images, icons, etc.) used by the app.               |
+| **cloud-function/**                      | Backend code for Google Cloud OCR integration.                     |
+| ├─ **vision-ocr-function.js**            | Cloud Function that processes images and returns extracted text.   |
+| └─ **package.json**                      | Dependency list for the Cloud Function deployment.                 |
+| **components/**                          | Reusable UI components following your design system.               |
+| ├─ **BookInputForm.tsx**                 | Input form for adding new books and quotes.                        |
+| ├─ **BookListItem.tsx**                  | Displays each book and its associated quotes.                      |
+| ├─ **FormButton.tsx**                    | Reusable, theme-aware button component.                            |
+| ├─ **FormInput.tsx**                     | Styled input field for consistent form UX.                         |
+| └─ **SwipeDeleteButton.tsx**             | Swipe gesture delete button for list items.                        |
+| **context/**                             | React Context for global state management.                         |
+| └─ **AuthContext.tsx**                   | Provides authentication state across the app.                      |
+| **hooks/**                               | Custom React hooks encapsulating business logic.                   |
+| ├─ ****tests**/**                        | Directory for unit tests of hook logic.                            |
+| ├─ **useBookInput.ts**                   | Handles form state and OCR flow logic.                             |
+| └─ **useBookQuotes.ts**                  | Manages SQLite CRUD operations for books/quotes.                   |
+| **utils/**                               | General utilities and configuration helpers.                       |
+| ├─ **database.ts**                       | Database schema and CRUD utilities using SQLite.                   |
+| ├─ **fetchBookCover.ts**                 | Integrates Google Books API for cover lookup.                      |
+| ├─ **id.ts**                             | Unique ID generator for local entities.                            |
+| ├─ **index.ts**                          | Central export file for all utility modules.                       |
+| └─ **theme.ts**                          | Global design system (colors, typography, spacing).                |
+| **.gcloudignore**                        | Files to exclude when deploying Cloud Functions.                   |
+| **.gitignore**                           | Files ignored by Git.                                              |
+| **app.json**                             | Expo configuration (app name, icons, permissions).                 |
+| **DEV_LOG.md**                           | Developer log documenting progress and lessons.                    |
+| **eslint.config.js / eslint.config.mjs** | Linting configuration files for code style.                        |
+| **expo-env.d.ts**                        | Type definitions for Expo-specific globals.                        |
+| **firebaseConfig.ts**                    | Firebase project credentials and initialization.                   |
+| **package.json**                         | Project metadata, dependencies, and npm scripts.                   |
+| **package-lock.json**                    | Lockfile for deterministic dependency installs.                    |
+| **README.md**                            | Overview and setup guide for the project.                          |
+| **tsconfig.json**                        | TypeScript compiler configuration.                                 |
 
 ### Custom Hooks Strategy
 

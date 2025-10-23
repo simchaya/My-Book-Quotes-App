@@ -2,7 +2,7 @@
 
 **To be kept forever.**
 
-MarkItDown helps you capture and save your favorite book quotes—right from your phone.
+MarkItDown is a mobile app that streamlines the process of collecting book quotes through smart camera integration. You can capture passages directly from physical books, with future development aimed at incorporating social features.
 
 ---
 

@@ -8,17 +8,21 @@ This document captures the technical decisions, challenges, and lessons learned 
 
 **Tech Stack:**
 - **Frontend:** React Native + Expo
+- **Authentication:** Firebase Authentication
 - **Database:** SQLite (expo-sqlite)
 - **Camera:** expo-image-picker
 - **OCR:** Google Cloud Vision API
-- **State Management:** Custom React Hooks
+- **Book Data:** Google Books API
+- **State Managemen:** Custom React Hooks
+- **Testing:** Jest (unit tests)
 - **Styling:** Custom design system with theme.ts
 
 **Architecture:**
 - Managed Expo workflow (no native code ejection)
 - Modular hook-based state management
 - Custom utilities for database operations
-- Cloud function integration for OCR processing
+- Cloud service integration (Firebase Auth, Google Cloud Vision, Google Books API)
+- Comprehensive unit testing with Jest
 
 ---
 

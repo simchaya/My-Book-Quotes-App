@@ -70,10 +70,12 @@ export default function HomeScreen() {
       {/* Header: Displays user email and provides a clear sign-out action */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>My Books</Text>
-          <Text style={styles.headerEmail}>{user?.email}</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>My Books</Text>
+          <Text style={[styles.headerEmail, { color: colors.secondaryText }]}>
+            {user?.email}
+          </Text>
         </View>
-        
+
         {/* Sign Out Button */}
         <TouchableOpacity onPress={signOut} style={styles.signOutButton}>
           <Ionicons name="log-out-outline" size={24} color="#FF3B30" />

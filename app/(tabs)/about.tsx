@@ -28,9 +28,8 @@ export default function AboutScreen() {
             What is MarkItDown?
           </Text>
           <Text style={[typography.body, { color: colors.text }]}>
-            MarkItDown helps you capture and organize your favorite book quotes.
-            Snap a photo of your book cover, use the camera to capture quotes with
-            automatic text recognition, and add your personal thoughts—all in one place.
+            MarkItDown will help you re-establish your relationship with printed books 
+            by chasing after meaningful quotes in a fun and easy way.
           </Text>
         </View>
 
@@ -63,7 +62,7 @@ export default function AboutScreen() {
               3. Add your thoughts
             </Text>
             <Text style={[typography.body, { color: colors.secondaryText, marginTop: spacing.xs }]}>
-              Write notes to remember why each quote matters to you
+            Write notes to remember why each quote moved you—creating your own little diary of meaningful moments
             </Text>
           </View>
 
@@ -72,7 +71,8 @@ export default function AboutScreen() {
               4. Read more intentionally
             </Text>
             <Text style={[typography.body, { color: colors.secondaryText, marginTop: spacing.xs }]}>
-              Knowing you can save great moments makes you notice them more
+            Chasing just one quote makes opening that unread book easy. 
+            You might find yourself lost in its pages—at home, at work, or wherever life takes you.
             </Text>
           </View>
         </View>
@@ -90,12 +90,9 @@ export default function AboutScreen() {
             About the Developer
           </Text>
           <Text style={[typography.body, { color: colors.text, marginBottom: spacing.md }]}>
-            I love reading, but I kept losing track of the quotes that moved me.
-            This app is my solution—a simple way to capture beautiful words and
-            engage more deeply with every book I read.
-          </Text>
-          <Text style={[typography.body, { color: colors.secondaryText }]}>
-            Built with love for book lovers everywhere
+          I'm Simcha, and I love books! I love reading from a hard copy, seeing them on my nightstand and shelves.
+          But between my young family, work and screens, I wasn't reading nearly as much as I wanted to. 
+          So I built MarkItDown — to help myself (and fellow bookworms everywhere) read more.
           </Text>
         </View>
 
